@@ -4,10 +4,13 @@
 #include "stdafx.h"
 
 #include <cassert>
+#include <cmath>
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 
 using namespace std;
@@ -205,7 +208,7 @@ void Bathroom_Security()
 
     pair<int, int> pos(1,1);
 
-    ifstream in("input.txt");
+    ifstream in("Bathroom_Security_Input.txt");
     if(!in)
     {
         cerr << "Cannot find file." << endl;
@@ -283,7 +286,7 @@ void Bathroom_Security__Part_2()
     // Start is at '5'
     pair<int, int> pos(0,2);
 
-    ifstream in("input.txt");
+    ifstream in("Bathroom_Security_Input.txt");
     if(!in)
     {
         cerr << "Cannot find file." << endl;
@@ -346,6 +349,74 @@ void Bathroom_Security__Part_2()
     cout << endl;
 }
 
+void Squares_With_Three_Sides()
+{
+
+    ifstream in("Triangles_Input.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    int Counter = 0;
+
+    string Line;
+    while (in)
+    {
+        getline(in, Line);
+
+        if(Line.length() > 0)
+        {
+            int a[3];
+
+            istringstream is(Line);
+            for(int i = 0; i < 3; ++i)
+            {
+                is >> a[i];
+            }
+
+            sort(&a[0], &a[3]);
+
+            // the triangle inequality states that for any triangle, the sum of the lengths of any two sides must be greater than or equal to the length of the remaining side
+            
+            // according to wikipedia >= is possible as well. In this coding challenge it's not.
+            if((a[0] + a[1]) > a[2])
+            {
+                Counter++;
+            }
+            else
+            {
+                int bla = 99;
+            }
+        }
+    }
+
+
+    cout << Counter << endl;
+
+
+
+
+    //string triangle = "99 10 25";
+    //int a[3];
+
+    //istringstream is(triangle);
+    //for(int i = 0; i < 3; ++i)
+    //{
+    //    is >> a[i];
+    //}
+
+    //sort(&a[0], &a[3]);
+
+
+    //// the triangle inequality states that for any triangle, the sum of the lengths of any two sides must be greater than or equal to the length of the remaining side
+    //if((a[0] + a[1]) >= a[2])
+    //{
+    //    cout << "valid" << endl;
+    //}
+}
+
 
 int main()
 {
@@ -353,7 +424,9 @@ int main()
     //No_Time_For_A_Taxi_Cab__Part_2();
 
     //Bathroom_Security();
-    Bathroom_Security__Part_2();
+    //Bathroom_Security__Part_2();
+
+    Squares_With_Three_Sides();
 
     return 0;
 }

@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SFML_Test", "SFML_Test\SFML
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Starfield", "Starfield\Starfield.vcxproj", "{CDA292A4-9191-4046-993F-4C10D02B40CD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AdventOfCode", "AdventOfCode\AdventOfCode.vcxproj", "{3CF4B396-56ED-4335-99F2-F76CAC881DF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{CDA292A4-9191-4046-993F-4C10D02B40CD}.Release|x64.Build.0 = Release|x64
 		{CDA292A4-9191-4046-993F-4C10D02B40CD}.Release|x86.ActiveCfg = Release|Win32
 		{CDA292A4-9191-4046-993F-4C10D02B40CD}.Release|x86.Build.0 = Release|Win32
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Debug|x64.ActiveCfg = Debug|x64
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Debug|x64.Build.0 = Debug|x64
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Debug|x86.ActiveCfg = Debug|Win32
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Debug|x86.Build.0 = Debug|Win32
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Release|x64.ActiveCfg = Release|x64
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Release|x64.Build.0 = Release|x64
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Release|x86.ActiveCfg = Release|Win32
+		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

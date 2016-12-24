@@ -1,5 +1,5 @@
-// AdventOfCode.cpp : Defines the entry point for the console application.
-//
+
+// http://adventofcode.com/
 
 #include "stdafx.h"
 
@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -351,7 +352,6 @@ void Bathroom_Security__Part_2()
 
 void Squares_With_Three_Sides()
 {
-
     ifstream in("Triangles_Input.txt");
     if(!in)
     {
@@ -417,6 +417,187 @@ void Squares_With_Three_Sides()
     //}
 }
 
+///
+/// Instead of defining a triangle by a line in the input file, a triangle is made up by three values of each column.
+/// E.g
+/// 
+/// 123 123 123
+/// 456 456 456
+/// 789 789 789
+/// 
+/// These three lines define three triangle (123, 456, 789)
+/// 
+void Squares_With_Three_Sides__Part_2()
+{
+    ifstream in("Triangles_Input.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    vector<vector<int>> numbers;    
+    
+    int Triangle_Counter = 0;
+    int Not_Triangle_Counter = 0;
+
+    string Line;
+    while (in)
+    {
+        getline(in, Line);
+
+        if(Line.length() > 0)
+        {
+            istringstream is(Line);
+            int a[3];
+            is >> a[0];
+            is >> a[1];
+            is >> a[2];
+
+            numbers.push_back(vector<int>());
+            numbers.back().push_back(a[0]);
+            numbers.back().push_back(a[1]);
+            numbers.back().push_back(a[2]);
+
+            if((numbers.size() % 3) == 0)
+            {
+                vector<vector<int>> triangles;
+            
+                for(int c = 0; c < 3; c++)
+                {
+                    a[0] = numbers[0][c];
+                    a[1] = numbers[1][c];
+                    a[2] = numbers[2][c];
+
+                    // !!! one past back !!!
+                    sort(&a[0], &a[3]);
+
+                    if((a[0] + a[1]) > a[2])
+                    {
+                        Triangle_Counter++;
+                    }
+                    else
+                    {
+                        Not_Triangle_Counter++;
+                    }
+                }
+        
+                numbers.clear();
+            }
+        }
+        
+      
+
+        //if(Line.length() > 0)
+        //{
+        //    int a[3];
+
+        //    istringstream is(Line);
+        //    for(int i = 0; i < 3; ++i)
+        //    {
+        //        is >> a[i];
+        //    }
+
+        //    sort(&a[0], &a[3]);
+
+        //    if((a[0] + a[1]) > a[2])
+        //    {
+        //        Triangle_Counter++;
+        //    }
+        //}
+    }
+
+
+    cout << Triangle_Counter << endl;
+    cout << Not_Triangle_Counter << endl;
+}
+
+void Security_Through_Obscurity()
+{
+    ifstream in("Rooms.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+   
+    {
+        //string Line = "not-a-real-room-404[oarel]";
+        string Line = "a-b-c-d-e-f-g-h-987[abcde]";
+
+        string name = Line.substr(0, Line.find_last_of('-'));
+        string sector_id = Line.substr(Line.find_last_of('-') + 1, Line.find_last_of('[') - Line.find_last_of('-') - 1);
+        string checksum = Line.substr(Line.find('[') + 1, Line.find_last_of(']') - Line.find('[') - 1);
+
+        assert(name.length() > 0);
+        assert(sector_id.length() > 0);
+        assert(checksum.length() > 0);
+        assert(atoi(sector_id.c_str()) > 0);
+    
+        // check if checksum is correct
+        map<char, int> histogram;
+        
+        for(auto c : name)
+        {
+            if(c != '-')
+            {
+                histogram[c]++;
+            }
+        }
+
+        vector<pair<char,int>> generated_checksum(histogram.size());
+        copy(histogram.begin(), histogram.end(), generated_checksum.begin());
+
+        // sort by count
+        sort(generated_checksum.begin()
+            , generated_checksum.end()
+            , [](const pair<char,int>& a, const pair<char, int>& b) -> bool { return a.second > b.second; });
+
+        // sort letter alphabetically when count is equal
+        int max_count = generated_checksum.front().second;
+
+        for(int c = max_count; c > 0; --c)
+        {
+            auto it = find_if(generated_checksum.begin()
+                , generated_checksum.end()
+                , [c](const pair<char,int>& p) { return p.second == c; });
+
+            decltype(it) end = it + 1;
+
+            while(end < generated_checksum.end())
+            {
+                if(end->second != c)
+                {
+                    break;
+                }
+
+                end++;
+            }
+
+            if(distance(it,end) > 1)
+            {
+                sort(it, end, [](const pair<char,int>& a, const pair<char, int>& b) -> bool { return a.first < b.first; });
+            }
+        }
+    }
+
+
+
+    string Line;
+    while (in)
+    {
+        getline(in, Line);
+
+        if(Line.length() > 0)
+        {
+            string code = Line.substr(0, Line.find('['));
+            string checksum = Line.substr(Line.find('['), Line.find_last_of(']'));
+
+        }
+    }
+}
+
+
 
 int main()
 {
@@ -426,7 +607,10 @@ int main()
     //Bathroom_Security();
     //Bathroom_Security__Part_2();
 
-    Squares_With_Three_Sides();
+    //Squares_With_Three_Sides();
+    //Squares_With_Three_Sides__Part_2();
+
+    Security_Through_Obscurity();
 
     return 0;
 }

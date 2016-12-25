@@ -14,6 +14,11 @@
 #include <sstream>
 #include <vector>
 
+// see https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
+extern "C" void md5_compress(uint32_t state[4], const uint8_t block[64]);
+
+void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]);
+
 using namespace std;
 
 ///
@@ -512,29 +517,10 @@ void Squares_With_Three_Sides__Part_2()
     cout << Not_Triangle_Counter << endl;
 }
 
-void Security_Through_Obscurity()
+
+string process_room_code(const string& name )
 {
-    ifstream in("Rooms.txt");
-    if(!in)
-    {
-        cerr << "Cannot find file." << endl;
-        return;
-    }
-   
-    {
-        //string Line = "not-a-real-room-404[oarel]";
-        string Line = "a-b-c-d-e-f-g-h-987[abcde]";
-
-        string name = Line.substr(0, Line.find_last_of('-'));
-        string sector_id = Line.substr(Line.find_last_of('-') + 1, Line.find_last_of('[') - Line.find_last_of('-') - 1);
-        string checksum = Line.substr(Line.find('[') + 1, Line.find_last_of(']') - Line.find('[') - 1);
-
-        assert(name.length() > 0);
-        assert(sector_id.length() > 0);
-        assert(checksum.length() > 0);
-        assert(atoi(sector_id.c_str()) > 0);
-    
-        // check if checksum is correct
+        // count each letter
         map<char, int> histogram;
         
         for(auto c : name)
@@ -548,55 +534,322 @@ void Security_Through_Obscurity()
         vector<pair<char,int>> generated_checksum(histogram.size());
         copy(histogram.begin(), histogram.end(), generated_checksum.begin());
 
-        // sort by count
+        // sort by count descending and if count is equal sort by letter ascending
         sort(generated_checksum.begin()
             , generated_checksum.end()
-            , [](const pair<char,int>& a, const pair<char, int>& b) -> bool { return a.second > b.second; });
-
-        // sort letter alphabetically when count is equal
-        int max_count = generated_checksum.front().second;
-
-        for(int c = max_count; c > 0; --c)
-        {
-            auto it = find_if(generated_checksum.begin()
-                , generated_checksum.end()
-                , [c](const pair<char,int>& p) { return p.second == c; });
-
-            decltype(it) end = it + 1;
-
-            while(end < generated_checksum.end())
-            {
-                if(end->second != c)
+            , [](const pair<char,int>& a, const pair<char, int>& b) -> bool 
+            { 
+                if(a.second == b.second)
                 {
-                    break;
+                    return a.first < b.first;
                 }
 
-                end++;
-            }
+                return a.second > b.second; 
+            });
 
-            if(distance(it,end) > 1)
+        string checksum = "";
+        for(int i = 0; i < 5; ++i)
+        {
+            checksum += generated_checksum[i].first;
+        }
+
+        return checksum;
+}
+
+void Security_Through_Obscurity()
+{
+    //{
+    //    vector<string> test_data = 
+    //    {
+    //        "aaaaa-bbb-z-y-x-123[abxyz]", 
+    //        "a-b-c-d-e-f-g-h-987[abcde]", 
+    //        "not-a-real-room-404[oarel]",
+    //        "totally-real-room-200[decoy]"
+    //    };
+    //    
+    //    for(auto& s : test_data)
+    //    {
+    //        string name = s.substr(0, s.find_last_of('-'));
+    //        string sector_id = s.substr(s.find_last_of('-') + 1, s.find_last_of('[') - s.find_last_of('-') - 1);
+    //        string checksum = s.substr(s.find('[') + 1, s.find_last_of(']') - s.find('[') - 1);
+
+    //        assert(name.length() > 0);
+    //        assert(sector_id.length() > 0);
+    //        assert(checksum.length() > 0);
+    //        assert(atoi(sector_id.c_str()) > 0);
+
+    //        auto generated_checksum = process_room_code(name);
+
+    //        if(generated_checksum == checksum)
+    //        {
+    //            cout << s << " is a room" << endl;
+    //        }
+    //        else
+    //        {
+    //            cout << s << " is not a room" << endl;
+    //        }
+    //    }
+    //}
+
+
+    int sum_sector_id = 0;
+
+    ifstream in("Rooms.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            string name = s.substr(0, s.find_last_of('-'));
+            string sector_id = s.substr(s.find_last_of('-') + 1, s.find_last_of('[') - s.find_last_of('-') - 1);
+            string checksum = s.substr(s.find('[') + 1, s.find_last_of(']') - s.find('[') - 1);
+
+            assert(name.length() > 0);
+            assert(sector_id.length() > 0);
+            assert(checksum.length() > 0);
+            assert(atoi(sector_id.c_str()) > 0);
+
+            auto generated_checksum = process_room_code(name);
+
+            if(generated_checksum == checksum)
             {
-                sort(it, end, [](const pair<char,int>& a, const pair<char, int>& b) -> bool { return a.first < b.first; });
+                sum_sector_id += atoi(sector_id.c_str());
             }
         }
     }
 
+    cout << sum_sector_id << endl;
+}
 
+void Security_Through_Obscurity__Part_2()
+{
+    //{
+    //    string test = "qzmt-zixmtkozy-ivhz-343";
 
-    string Line;
+    //    string name = test.substr(0, test.find_last_of('-'));
+    //    string sector_id = test.substr(test.find_last_of('-') + 1, string::npos);
+
+    //    int num_shifts = atoi(sector_id.c_str());
+    //    char c = 'q';
+
+    //    for( auto& c : name)
+    //    {
+    //        if( c == '-' ) 
+    //        {
+    //            c = ' ';
+    //            continue;
+    //        }
+    //    
+    //        for (int i = 0; i < num_shifts; i++)
+    //        {
+    //            c++;
+    //            if(c > 'z') { c = 'a'; }
+    //        }
+    //    }
+    //}
+
+    ifstream in("Rooms.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    string s;
     while (in)
     {
-        getline(in, Line);
+        getline(in, s);
 
-        if(Line.length() > 0)
+        if(s.length() > 0)
         {
-            string code = Line.substr(0, Line.find('['));
-            string checksum = Line.substr(Line.find('['), Line.find_last_of(']'));
+            string name = s.substr(0, s.find_last_of('-'));
+            string sector_id = s.substr(s.find_last_of('-') + 1, s.find_last_of('[') - s.find_last_of('-') - 1);
+            string checksum = s.substr(s.find('[') + 1, s.find_last_of(']') - s.find('[') - 1);
 
+            assert(name.length() > 0);
+            assert(sector_id.length() > 0);
+            assert(checksum.length() > 0);
+            assert(atoi(sector_id.c_str()) > 0);
+
+            auto generated_checksum = process_room_code(name);
+
+            if(generated_checksum == checksum)
+            {
+                int num_shifts = atoi(sector_id.c_str());
+
+                for( auto& c : name)
+                {
+                    if( c == '-' ) 
+                    {
+                        c = ' ';
+                        continue;
+                    }
+                    
+                    for (int i = 0; i < num_shifts; i++)
+                    {
+                        c++;
+                        if(c > 'z') { c = 'a'; }
+                    }
+                }
+
+                if(name.find("north") != string::npos)
+                {
+                    cout << name << endl;
+                    cout << sector_id << endl;
+                }
+            }
         }
     }
 }
 
+uint32_t ChangeEndianness(uint32_t value)
+{
+    uint32_t result = 0;
+    result |= (value & 0x000000FF) << 24;
+    result |= (value & 0x0000FF00) << 8;
+    result |= (value & 0x00FF0000) >> 8;
+    result |= (value & 0xFF000000) >> 24;
+    return result;
+}
+
+void Hash_Password()
+{
+    //uint32_t hash[4];
+    //string test = "abc3231929";
+    //md5_hash((uint8_t*) test.c_str(), strlen(test.c_str()), hash);
+    //auto _0 = ChangeEndianness(hash[0]);
+
+    //uint32_t a = 0x00000FFF;
+    //if(_0 <= a)
+    //{
+    //    // bingo
+    //    int iiii = 99;
+    //}
+
+
+    //uint32_t hash[4];
+    //vector<uint8_t> bytes(10);
+    //bytes[0] = 'a';
+    //bytes[1] = 'b';
+    //bytes[2] = 'c';
+    ////   90015098
+    //// 0x90015098
+    ////uint32_t hash[4];
+    //md5_hash(&bytes[0], 3, hash);
+    //uint32_t _0 = ChangeEndianness(hash[0]);
+
+    // test with http://www.miraclesalad.com/webtools/md5.php
+
+    uint32_t hash[4];
+
+    string door_id = "reyedfim";
+
+    auto s = door_id.length();
+
+    vector<uint8_t> bytes(100);
+
+    for(int c = 0; c < door_id.length(); ++c)
+    {
+        bytes[c] = door_id[c];
+    }
+
+    int size = door_id.length();
+
+    uint32_t upper_boundary = 0x00000FFF;
+
+    vector<uint32_t> pw_pieces;
+
+    for(uint32_t i = 0; i < UINT32_MAX; ++i)
+    {
+        uint32_t i_copy = i;
+
+        int offset = (i > 0) ? log10(i) + 1.0 : 1;
+        for(int j = offset; j > 0; --j)
+        {
+            // add i as char
+            bytes[size + j - 1] = (i_copy % 10) + 48;
+            i_copy /= 10;
+        }
+
+        md5_hash(&bytes[0], size + offset, hash);
+        uint32_t _0 = ChangeEndianness(hash[0]);
+
+        if(_0 <= upper_boundary)
+        {
+            pw_pieces.push_back(_0);
+
+            if(pw_pieces.size() == 8)
+            {
+                break;
+            }
+        }
+
+    }
+
+    for(auto p : pw_pieces)
+    {
+        cout << std::hex << (p / 16 ) / 16;
+    }
+
+    cout << endl;
+}
+
+void Hash_Password__Part_2()
+{
+    // test with http://www.miraclesalad.com/webtools/md5.php
+
+    uint32_t hash[4];
+
+    string door_id = "reyedfim";
+
+    auto s = door_id.length();
+
+    vector<uint8_t> bytes(100);
+
+    for(int c = 0; c < door_id.length(); ++c)
+    {
+        bytes[c] = door_id[c];
+    }
+
+    int size = door_id.length();
+
+    uint32_t upper_boundary = 0x00000FFF;
+
+    vector<uint32_t> pw_pieces;
+
+    for(uint32_t i = 0; i < UINT32_MAX; ++i)
+    {
+        uint32_t i_copy = i;
+
+        int offset = (i > 0) ? log10(i) + 1.0 : 1;
+        for(int j = offset; j > 0; --j)
+        {
+            // add i as char
+            bytes[size + j - 1] = (i_copy % 10) + 48;
+            i_copy /= 10;
+        }
+
+        md5_hash(&bytes[0], size + offset, hash);
+        uint32_t _0 = ChangeEndianness(hash[0]);
+
+        if(_0 <= upper_boundary)
+        {
+            // sixth character
+            
+
+
+            // seventh character
+        }
+    }
+}
 
 
 int main()
@@ -610,8 +863,48 @@ int main()
     //Squares_With_Three_Sides();
     //Squares_With_Three_Sides__Part_2();
 
-    Security_Through_Obscurity();
+    //Security_Through_Obscurity();
+    //Security_Through_Obscurity__Part_2();
+
+    // Day 5
+    //Hash_Password();
+    Hash_Password__Part_2();
 
     return 0;
 }
+
+
+/* Full message hasher */
+
+void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]) {
+	hash[0] = UINT32_C(0x67452301);
+	hash[1] = UINT32_C(0xEFCDAB89);
+	hash[2] = UINT32_C(0x98BADCFE);
+	hash[3] = UINT32_C(0x10325476);
+	
+	size_t i;
+	for (i = 0; len - i >= 64; i += 64)
+		md5_compress(hash, &message[i]);
+	
+	uint8_t block[64];
+	size_t rem = len - i;
+	memcpy(block, &message[i], rem);
+	
+	block[rem] = 0x80;
+	rem++;
+	if (64 - rem >= 8)
+		memset(&block[rem], 0, 56 - rem);
+	else {
+		memset(&block[rem], 0, 64 - rem);
+		md5_compress(hash, block);
+		memset(block, 0, 56);
+	}
+	
+	block[64 - 8] = (uint8_t)((len & 0x1FU) << 3);
+	len >>= 5;
+	for (i = 1; i < 8; i++, len >>= 8)
+		block[64 - 8 + i] = (uint8_t)len;
+	md5_compress(hash, block);
+}
+
 

@@ -133,3 +133,35 @@ void md5_compress(uint32_t state[4], const uint8_t block[64]) {
 	state[2] = 0U + state[2] + c;
 	state[3] = 0U + state[3] + d;
 }
+
+
+void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]) {
+	hash[0] = UINT32_C(0x67452301);
+	hash[1] = UINT32_C(0xEFCDAB89);
+	hash[2] = UINT32_C(0x98BADCFE);
+	hash[3] = UINT32_C(0x10325476);
+	
+	size_t i;
+	for (i = 0; len - i >= 64; i += 64)
+		md5_compress(hash, &message[i]);
+	
+	uint8_t block[64];
+	size_t rem = len - i;
+	memcpy(block, &message[i], rem);
+	
+	block[rem] = 0x80;
+	rem++;
+	if (64 - rem >= 8)
+		memset(&block[rem], 0, 56 - rem);
+	else {
+		memset(&block[rem], 0, 64 - rem);
+		md5_compress(hash, block);
+		memset(block, 0, 56);
+	}
+	
+	block[64 - 8] = (uint8_t)((len & 0x1FU) << 3);
+	len >>= 5;
+	for (i = 1; i < 8; i++, len >>= 8)
+		block[64 - 8 + i] = (uint8_t)len;
+	md5_compress(hash, block);
+}

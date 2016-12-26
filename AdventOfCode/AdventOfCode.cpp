@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <map>
 #include <string>
 #include <sstream>
@@ -16,8 +17,7 @@
 
 // see https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
 extern "C" void md5_compress(uint32_t state[4], const uint8_t block[64]);
-
-void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]);
+extern "C" void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]);
 
 using namespace std;
 
@@ -761,7 +761,7 @@ void Hash_Password()
         bytes[c] = door_id[c];
     }
 
-    int size = door_id.length();
+    size_t size = door_id.length();
 
     uint32_t upper_boundary = 0x00000FFF;
 
@@ -771,7 +771,7 @@ void Hash_Password()
     {
         uint32_t i_copy = i;
 
-        int offset = (i > 0) ? log10(i) + 1.0 : 1;
+        int offset = (i > 0) ? (int)(log10(i) + 1.0) : 1;
         for(int j = offset; j > 0; --j)
         {
             // add i as char
@@ -809,6 +809,7 @@ void Hash_Password__Part_2()
     uint32_t hash[4];
 
     string door_id = "reyedfim";
+    //string door_id = "abc";
 
     auto s = door_id.length();
 
@@ -819,11 +820,11 @@ void Hash_Password__Part_2()
         bytes[c] = door_id[c];
     }
 
-    int size = door_id.length();
+    size_t size = door_id.length();
 
     uint32_t upper_boundary = 0x00000FFF;
 
-    vector<uint32_t> pw_pieces;
+    string password(8, '_');
 
     for(uint32_t i = 0; i < UINT32_MAX; ++i)
     {
@@ -842,15 +843,248 @@ void Hash_Password__Part_2()
 
         if(_0 <= upper_boundary)
         {
-            // sixth character
-            
+            stringstream ss;
+            ss << setfill('0') << setw(sizeof(uint32_t) * 2) << hex << _0;
+            string hex_number = ss.str();
 
+            // sixth character - must be value between 0 and 7
+            uint8_t pos = hex_number[5] - '0';
+            char value = hex_number[6];
 
-            // seventh character
+            if(pos >= 0 && pos < 8)
+            {
+                if(password[pos] == '_')
+                {
+                    // seventh character - can be any hex character
+                    password[pos] = value;
+
+                    cout << password << endl;
+
+                    if(password.find('_') == string::npos)
+                    {
+                        return;
+                    }
+                }
+            }
         }
     }
 }
 
+void Signal_And_Noise()
+{
+/*
+    vector<string> test = {
+        "eedadn",
+        "drvtee",
+        "eandsr",
+        "raavrd",
+        "atevrs",
+        "tsrnev",
+        "sdttsa",
+        "rasrtv",
+        "nssdts",
+        "ntnada",
+        "svetve",
+        "tesnvt",
+        "vntsnd",
+        "vrdear",
+        "dvrsen",
+        "enarar"
+    };
+
+    int num_chars = 6;
+
+    vector<map<char, int>> common_char(num_chars);
+
+    for(auto& s : test)
+    {
+        for(int c = 0; c < s.length(); ++c)
+        {
+            assert(c<num_chars);
+
+            common_char[c][s[c]]++;
+        }
+    }
+
+    for(auto& m : common_char)
+    {
+        vector<pair<char,int>> d(m.size());
+
+        copy(m.begin(), m.end(), d.begin());
+        sort(d.begin(), d.end()
+            , [](const pair<char,int>& a, const pair<char,int>& b)
+            {
+                return a.second > b.second;
+            });
+
+        auto max_count = d.front().second;
+        auto max_letter = d.front().first;
+        assert(d[1].second < max_count);
+
+        cout << max_letter;
+    }
+
+    cout << endl;
+*/
+
+    int num_columns = 8;
+    vector<map<char, int>> characters_by_column(num_columns);
+
+    ifstream in("Signal_and_Noise.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    int line_counter = 0;
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            line_counter++;
+            assert(s.length() == num_columns);
+
+            for(int c = 0; c < s.length(); ++c)
+            {
+                characters_by_column[c][s[c]]++;
+            }
+        }
+    }
+
+    for(auto& m : characters_by_column)
+    {
+        vector<pair<char,int>> d(m.size());
+
+        copy(m.begin(), m.end(), d.begin());
+        sort(d.begin(), d.end()
+            , [](const pair<char,int>& a, const pair<char,int>& b)
+            {
+                return a.second > b.second;
+            });
+
+        auto max_count = d.front().second;
+        auto max_letter = d.front().first;
+        assert(d[1].second < max_count);
+
+        cout << max_letter;
+    }
+
+    cout << endl;
+
+    cout << "processed " << line_counter << " lines" << endl;
+}
+
+void Signal_And_Noise__Part_2()
+{
+/*
+    vector<string> test = {
+        "eedadn",
+        "drvtee",
+        "eandsr",
+        "raavrd",
+        "atevrs",
+        "tsrnev",
+        "sdttsa",
+        "rasrtv",
+        "nssdts",
+        "ntnada",
+        "svetve",
+        "tesnvt",
+        "vntsnd",
+        "vrdear",
+        "dvrsen",
+        "enarar"
+    };
+
+    int num_chars = 6;
+
+    vector<map<char, int>> common_char(num_chars);
+
+    for(auto& s : test)
+    {
+        for(int c = 0; c < s.length(); ++c)
+        {
+            assert(c<num_chars);
+
+            common_char[c][s[c]]++;
+        }
+    }
+
+    for(auto& m : common_char)
+    {
+        vector<pair<char,int>> d(m.size());
+
+        copy(m.begin(), m.end(), d.begin());
+        sort(d.begin(), d.end()
+            , [](const pair<char,int>& a, const pair<char,int>& b)
+            {
+                return a.second < b.second;
+            });
+
+        auto min_count = d.front().second;
+        auto min_letter = d.front().first;
+        assert(d[1].second > min_count);
+
+        cout << min_letter;
+    }
+
+    cout << endl;
+*/
+
+    int num_columns = 8;
+    vector<map<char, int>> characters_by_column(num_columns);
+
+    ifstream in("Signal_and_Noise.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    int line_counter = 0;
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            line_counter++;
+            assert(s.length() == num_columns);
+
+            for(int c = 0; c < s.length(); ++c)
+            {
+                characters_by_column[c][s[c]]++;
+            }
+        }
+    }
+
+    for(auto& m : characters_by_column)
+    {
+        vector<pair<char,int>> d(m.size());
+
+        copy(m.begin(), m.end(), d.begin());
+        sort(d.begin(), d.end()
+            , [](const pair<char,int>& a, const pair<char,int>& b)
+            {
+                return a.second < b.second;
+            });
+
+        auto min_count = d.front().second;
+        auto min_letter = d.front().first;
+        assert(d[1].second > min_count);
+
+        cout << min_letter;
+    }
+
+    cout << endl;
+
+    cout << "processed " << line_counter << " lines" << endl;
+}
 
 int main()
 {
@@ -868,7 +1102,11 @@ int main()
 
     // Day 5
     //Hash_Password();
-    Hash_Password__Part_2();
+    //Hash_Password__Part_2();
+
+    // Day 6
+    //Signal_And_Noise();
+    Signal_And_Noise__Part_2();
 
     return 0;
 }
@@ -876,35 +1114,5 @@ int main()
 
 /* Full message hasher */
 
-void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]) {
-	hash[0] = UINT32_C(0x67452301);
-	hash[1] = UINT32_C(0xEFCDAB89);
-	hash[2] = UINT32_C(0x98BADCFE);
-	hash[3] = UINT32_C(0x10325476);
-	
-	size_t i;
-	for (i = 0; len - i >= 64; i += 64)
-		md5_compress(hash, &message[i]);
-	
-	uint8_t block[64];
-	size_t rem = len - i;
-	memcpy(block, &message[i], rem);
-	
-	block[rem] = 0x80;
-	rem++;
-	if (64 - rem >= 8)
-		memset(&block[rem], 0, 56 - rem);
-	else {
-		memset(&block[rem], 0, 64 - rem);
-		md5_compress(hash, block);
-		memset(block, 0, 56);
-	}
-	
-	block[64 - 8] = (uint8_t)((len & 0x1FU) << 3);
-	len >>= 5;
-	for (i = 1; i < 8; i++, len >>= 8)
-		block[64 - 8 + i] = (uint8_t)len;
-	md5_compress(hash, block);
-}
 
 

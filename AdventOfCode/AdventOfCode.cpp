@@ -11,6 +11,7 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <regex>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -1086,6 +1087,448 @@ void Signal_And_Noise__Part_2()
     cout << "processed " << line_counter << " lines" << endl;
 }
 
+void IP_Protocol_7()
+{
+    /*
+    vector<string> test = {
+        "abba[mnop]qrst",
+        "abcd[bddb]xyyx",
+        "aaaa[qwer]tyui",
+        "ioxxoj[asdfgh]zxcvbn"
+    };
+
+    for(auto& s : test)
+    {
+        // outside []
+        vector<string> outside;
+        
+        // inside []
+        vector<string> inside;
+        
+        bool pos_outside = true;
+        bool new_string = true;
+
+
+        for(auto c : s)
+        {
+
+            // first check if any state changing
+
+            if(c == '[')
+            {
+                pos_outside = false;
+                new_string = true;
+                
+                continue;
+            }
+
+            if(c == ']')
+            {
+                pos_outside = true;
+                new_string = true;
+                
+                continue;
+            }
+
+            // assign characters
+
+            if(pos_outside)
+            {
+                if(new_string)
+                {
+                    outside.push_back("");
+                    new_string = false;
+                }
+
+                outside.back() += c;
+            }
+            else
+            {
+                if(new_string)
+                {
+                    inside.push_back("");
+                    new_string = false;
+                }
+
+                inside.back() += c;
+            }
+        }
+    }
+    */
+
+    ifstream in("Day7.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    int Counter = 0;
+
+    int line_counter = 0;
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            // contains current IP address piece
+            string p;
+        
+            bool outside = true;
+            bool new_piece = true;
+            
+            
+            bool outside_good = false;
+            bool inside_good = true;
+
+            for(auto c : s)
+            {
+                // first check if any state changing
+
+                if(c == '[')
+                {
+                    outside = false;
+                    new_piece = true;
+                
+                    continue;
+                }
+
+                if(c == ']')
+                {
+                    outside = true;
+                    new_piece = true;
+                
+                    continue;
+                }
+
+                // assign characters
+
+
+                if(outside && outside_good == false)
+                {
+                    if(new_piece)
+                    {
+                        p.clear();
+                        new_piece = false;
+                    }
+
+                    p += c;
+
+                    if(p.length() >= 4)
+                    {
+                        string w = p.substr(p.length() - 4, 4);
+
+                        if(w[0] == w[3] && w[1] == w[2] && w[0] != w[1])
+                        {
+                            outside_good = true;
+                        }
+                    }
+                }
+                else if(outside == false && inside_good == true)
+                {
+                    if(new_piece)
+                    {
+                        p.clear();
+                        new_piece = false;
+                    }
+
+                    p += c;
+
+                    if(p.length() >= 4)
+                    {
+                        string w = p.substr(p.length() - 4, 4);
+
+                        if(w[0] == w[3] && w[1] == w[2] && w[0] != w[1])
+                        {
+                            inside_good = false;
+                        }
+                    }
+                }
+            }
+        
+            if(outside_good && inside_good)
+            {
+                cout << ++Counter << ": " << s << endl;
+            }
+        } 
+    }
+}
+
+
+void IP_Protocol_7__Part_2()
+{
+/*
+    vector<string> test = {
+        "aba[bab]xyz",
+        "xyx[xyx]xyx",
+        "aaa[kek]eke",
+        "zazbz[bzb]cdb"
+    };
+
+    for(auto& s : test)
+    {
+        vector<string> ABAs;
+        vector<string> BABs;
+
+        // contains current IP address piece
+        string p;
+        
+        bool outside = true;
+        bool new_piece = true;
+            
+        for(auto c : s)
+        {
+            // first check if any state changing
+
+            if(c == '[')
+            {
+                outside = false;
+                new_piece = true;
+                
+                continue;
+            }
+
+            if(c == ']')
+            {
+                outside = true;
+                new_piece = true;
+                
+                continue;
+            }
+
+            // assign characters
+
+            if(outside)
+            {
+                if(new_piece)
+                {
+                    p.clear();
+                    new_piece = false;
+                }
+
+                p += c;
+
+                if(p.length() >= 3)
+                {
+                    char a = p[p.length() - 3];
+                    char b = p[p.length() - 2];
+                    char c = p[p.length() - 1];
+
+                    if(a == c && a != b)
+                    {
+                        // put allocator in block (aka BAB) order to matching is easier
+
+                        stringstream ss;
+                        ss << b << a << b;
+                        ABAs.push_back(ss.str());
+                    }
+                }
+            }
+            else
+            {
+                if(new_piece)
+                {
+                    p.clear();
+                    new_piece = false;
+                }
+
+                p += c;
+
+                if(p.length() >= 3)
+                {
+                    char a = p[p.length() - 3];
+                    char b = p[p.length() - 2];
+                    char c = p[p.length() - 1];
+
+                    if(a == c && a != b)
+                    {
+                        BABs.push_back(p.substr(p.length() - 3, 3));
+                    }
+                }
+            }
+        }
+    
+        // check for match
+        vector<string> Union(ABAs.size() + BABs.size());
+
+        sort(ABAs.begin(), ABAs.end());
+        sort(BABs.begin(), BABs.end());
+        auto it = set_union(ABAs.begin(), ABAs.end(), BABs.begin(), BABs.end(), Union.begin());
+
+        if(it == Union.end())
+        {
+            cout << "Not a match: " << s << endl;
+        }
+        else
+        {
+            cout << "A match: " << s << endl;
+        }
+    }
+
+*/
+
+    ifstream in("Day7.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+
+
+    int Counter = 0;
+
+    int line_counter = 0;
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            vector<string> ABAs;
+            vector<string> BABs;
+
+            // contains current IP address piece
+            string p;
+        
+            bool outside = true;
+            bool new_piece = true;
+            
+            for(auto c : s)
+            {
+                // first check if any state changing
+
+                if(c == '[')
+                {
+                    outside = false;
+                    new_piece = true;
+                
+                    continue;
+                }
+
+                if(c == ']')
+                {
+                    outside = true;
+                    new_piece = true;
+                
+                    continue;
+                }
+
+                // assign characters
+
+                if(outside)
+                {
+                    if(new_piece)
+                    {
+                        p.clear();
+                        new_piece = false;
+                    }
+
+                    p += c;
+
+                    if(p.length() >= 3)
+                    {
+                        char a = p[p.length() - 3];
+                        char b = p[p.length() - 2];
+                        char c = p[p.length() - 1];
+
+                        if(a == c && a != b)
+                        {
+                            // put allocator in block (aka BAB) order to matching is easier
+
+                            stringstream ss;
+                            ss << b << a << b;
+                            ABAs.push_back(ss.str());
+                        }
+                    }
+                }
+                else
+                {
+                    if(new_piece)
+                    {
+                        p.clear();
+                        new_piece = false;
+                    }
+
+                    p += c;
+
+                    if(p.length() >= 3)
+                    {
+                        char a = p[p.length() - 3];
+                        char b = p[p.length() - 2];
+                        char c = p[p.length() - 1];
+
+                        if(a == c && a != b)
+                        {
+                            BABs.push_back(p.substr(p.length() - 3, 3));
+                        }
+                    }
+                }
+            }
+    
+            // check for match
+            vector<string> intersection(ABAs.size() + BABs.size());
+
+            sort(ABAs.begin(), ABAs.end());
+            sort(BABs.begin(), BABs.end());
+            auto it = set_intersection(ABAs.begin(), ABAs.end(), BABs.begin(), BABs.end(), intersection.begin());
+
+            intersection.resize(it - intersection.begin());
+
+            if(intersection.size() > 0)
+            {
+                cout << ++Counter << ": " << s << endl;
+            }
+        } 
+    }
+}
+
+void Two_Factor_Authentication()
+{
+    const int num_rows = 3;
+    const int num_columns = 7;
+    int screen[num_rows][num_columns];
+
+    vector<string> instructions 
+    {
+        "rect 3x2",
+        "rotate column x=1 by 1",
+        "rotate row y=0 by 4",
+        "rotate column x=1 by 1"
+    };
+
+    for(auto& i : instructions)
+    {
+        if(i.find("rect") != string::npos)
+        {
+            regex r("rect\\s*(\\d+)\\s*x\\s*(\\d+)");
+            smatch m;
+
+            if(regex_match(i, m, r))
+            {
+                string x = m[1].str();
+                string y = m[2].str();
+            }
+
+        }
+        else if(i.find("rotate column") != string::npos)
+        {
+            
+        }
+        else if(i.find("rotate row") != string::npos)
+        {
+            
+        }
+        else
+        {
+            cerr << "Cannot understand instruction: " << i << endl;
+        }
+    }
+}
+
 int main()
 {
     //No_Time_For_A_Taxi_Cab();
@@ -1106,13 +1549,20 @@ int main()
 
     // Day 6
     //Signal_And_Noise();
-    Signal_And_Noise__Part_2();
+    //Signal_And_Noise__Part_2();
+
+    // Day 7
+    //IP_Protocol_7();
+    //IP_Protocol_7__Part_2();
+
+    // Day 8
+    Two_Factor_Authentication();
+
+
 
     return 0;
 }
 
-
-/* Full message hasher */
 
 
 

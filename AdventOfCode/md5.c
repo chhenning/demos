@@ -135,6 +135,7 @@ void md5_compress(uint32_t state[4], const uint8_t block[64]) {
 }
 
 
+/* Full message hasher */
 void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]) {
 	hash[0] = UINT32_C(0x67452301);
 	hash[1] = UINT32_C(0xEFCDAB89);

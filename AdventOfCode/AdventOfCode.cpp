@@ -1256,7 +1256,6 @@ void IP_Protocol_7()
     }
 }
 
-
 void IP_Protocol_7__Part_2()
 {
 /*
@@ -1486,20 +1485,8 @@ void IP_Protocol_7__Part_2()
     }
 }
 
-void Two_Factor_Authentication()
+void draw(int** screen, const int num_rows, const int num_columns, const vector<string>& instructions)
 {
-    const int num_rows = 3;
-    const int num_columns = 7;
-    int screen[num_rows][num_columns];
-
-    vector<string> instructions 
-    {
-        "rect 3x2",
-        "rotate column x=1 by 1",
-        "rotate row y=0 by 4",
-        "rotate column x=1 by 1"
-    };
-
     for(auto& i : instructions)
     {
         if(i.find("rect") != string::npos)
@@ -1509,18 +1496,83 @@ void Two_Factor_Authentication()
 
             if(regex_match(i, m, r))
             {
-                string x = m[1].str();
-                string y = m[2].str();
-            }
+                int width = atoi(m[1].str().c_str());
+                int height = atoi(m[2].str().c_str());
 
+                assert(width > 0);
+                assert(height > 0);
+
+                for(int y = 0; y < height; ++y)
+                {
+                    for(int x = 0; x < width; ++x)
+                    {
+                        screen[y][x] = 1;
+                    }
+                }
+
+            }
         }
         else if(i.find("rotate column") != string::npos)
         {
-            
+            regex r("rotate column\\s*x=(\\d+)\\s*by\\s*(\\d+)");
+            smatch m;
+
+            if(regex_match(i, m, r))
+            {
+                int column = atoi(m[1].str().c_str());
+                int value = atoi(m[2].str().c_str());
+
+                assert(column >= 0);
+                assert(column < num_columns);
+                
+                assert(value > 0);
+
+                int inc = value % num_rows;
+
+                // make a copy of col as data source
+                vector<int> c(num_rows);
+                for(int y = 0; y < num_rows; ++y)
+                {
+                    c[y] = screen[y][column];
+                }
+
+                for(int y = 0; y < num_rows; ++y)
+                {
+                    int new_y = ((y + inc) < num_rows) ? y + inc : y + inc - num_rows;
+                    screen[new_y][column] = c[y];
+                }
+            }
         }
         else if(i.find("rotate row") != string::npos)
         {
-            
+            regex r("rotate row\\s*y=(\\d+)\\s*by\\s*(\\d+)");
+            smatch m;
+
+            if(regex_match(i, m, r))
+            {
+                int row = atoi(m[1].str().c_str());
+                int value = atoi(m[2].str().c_str());
+
+                assert(row >= 0);
+                assert(row < num_rows);
+
+                assert(value > 0);
+
+                int inc = value % num_columns;
+
+                // make a copy of row as data source
+                vector<int> r(num_columns);
+                for(int x = 0; x < num_columns; ++x)
+                {
+                    r[x] = screen[row][x];
+                }
+
+                for(int x = 0; x < num_columns; ++x)
+                {
+                    int new_x = ((x + inc) < num_columns) ? x + inc : x + inc - num_columns;
+                    screen[row][new_x] = r[x];
+                }
+            }
         }
         else
         {
@@ -1528,6 +1580,186 @@ void Two_Factor_Authentication()
         }
     }
 }
+
+void Two_Factor_Authentication()
+{
+/*
+    const int num_rows = 3;
+    const int num_columns = 7;
+    
+    int** screen = new int*[num_rows];
+
+    for(int y = 0; y < num_rows; ++y)
+    {
+        screen[y] = new int[num_columns];
+    }
+
+
+    for(int y = 0; y < num_rows; ++y)
+    {
+        for(int x = 0; x < num_columns; ++x)
+        {
+            screen[y][x] = 0;
+        }
+    }
+
+
+    vector<string> instructions 
+    {
+        "rect 3x2",
+        "rotate column x=1 by 1",
+        "rotate row y=0 by 4",
+        "rotate column x=1 by 1"
+    };
+
+    draw(screen, num_rows, num_columns, instructions);
+
+    assert(screen[0][0]== 0);
+    assert(screen[0][1]== 1);
+    assert(screen[0][2]== 0);
+    assert(screen[0][3]== 0);
+    assert(screen[0][4]== 1);
+    assert(screen[0][5]== 0);
+    assert(screen[0][6]== 1);
+
+    assert(screen[1][0]== 1);
+    assert(screen[1][1]== 0);
+    assert(screen[1][2]== 1);
+    assert(screen[1][3]== 0);
+    assert(screen[1][4]== 0);
+    assert(screen[1][5]== 0);
+    assert(screen[1][6]== 0);
+
+    assert(screen[2][0]== 0);
+    assert(screen[2][1]== 1);
+    assert(screen[2][2]== 0);
+    assert(screen[2][3]== 0);
+    assert(screen[2][4]== 0);
+    assert(screen[2][5]== 0);
+    assert(screen[2][6]== 0);
+*/
+
+    ifstream in("Day8.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+
+    vector<string> instructions;
+
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            instructions.push_back(s);
+        }
+    }
+
+    const int num_rows = 6;
+    const int num_columns = 50;
+    
+    int** screen = new int*[num_rows];
+
+    for(int y = 0; y < num_rows; ++y)
+    {
+        screen[y] = new int[num_columns];
+    }
+
+
+    for(int y = 0; y < num_rows; ++y)
+    {
+        for(int x = 0; x < num_columns; ++x)
+        {
+            screen[y][x] = 0;
+        }
+    }
+
+    draw(screen, num_rows, num_columns, instructions);
+
+    int on_pixels = 0;
+    for(int y = 0; y < num_rows; ++y)
+    {
+        for(int x = 0; x < num_columns; ++x)
+        {
+            if(screen[y][x] == 1)
+            {
+                ++on_pixels;
+            }
+        }
+    }
+
+    cout << on_pixels << endl;
+}
+
+void Two_Factor_Authentication__Part_2()
+{
+    ifstream in("Day8.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+
+    vector<string> instructions;
+
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            instructions.push_back(s);
+        }
+    }
+
+    const int num_rows = 6;
+    const int num_columns = 50;
+    
+    int** screen = new int*[num_rows];
+
+    for(int y = 0; y < num_rows; ++y)
+    {
+        screen[y] = new int[num_columns];
+    }
+
+
+    for(int y = 0; y < num_rows; ++y)
+    {
+        for(int x = 0; x < num_columns; ++x)
+        {
+            screen[y][x] = 0;
+        }
+    }
+
+    draw(screen, num_rows, num_columns, instructions);
+
+
+
+    int on_pixels = 0;
+    for(int y = 0; y < num_rows; ++y)
+    {
+        for(int x = 0; x < num_columns; ++x)
+        {
+            if((x % 5) == 0)
+            {
+                cout << "  ";
+            }
+            
+            cout << ((screen[y][x] == 0) ? '.' : '8');
+        }
+    
+        cout << endl;
+    }
+
+}
+
 
 int main()
 {
@@ -1556,13 +1788,9 @@ int main()
     //IP_Protocol_7__Part_2();
 
     // Day 8
-    Two_Factor_Authentication();
-
+    //Two_Factor_Authentication();
+    Two_Factor_Authentication__Part_2();
 
 
     return 0;
 }
-
-
-
-

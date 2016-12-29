@@ -1760,6 +1760,274 @@ void Two_Factor_Authentication__Part_2()
 
 }
 
+void Explosives_In_Cyberspace()
+{
+    //vector<string> test = {
+    //    "ADVENT",
+    //    "A(1x5)BC",
+    //    "(3x3)XYZ",
+    //    "(6x1)(1x3)A",
+    //    "X(8x2)(3x3)ABCY"
+    //};
+
+
+    //for(const auto& s : test)
+    //{
+    //    string marker = "";
+    //    string output = "";
+
+    //    // length of data section
+    //    int n = 0;
+    //    
+    //    // how often to repeat
+    //    int m = 0;
+
+    //    for(int i = 0; i < s.length(); ++i)
+    //    {
+    //        char c = s[i];
+    //        
+    //        if(marker == "" && c == '(')
+    //        {
+    //            // read marker
+    //            for(++i;i < s.length();++i)
+    //            {
+    //                c = s[i];
+
+    //                if(c == ')')
+    //                {
+    //                    break;
+    //                }
+
+    //                marker += c;
+    //            }
+    //        
+    //            string n_value = marker.substr(0, marker.find('x'));
+    //            string m_value = marker.substr(marker.find('x') + 1);
+
+    //            n = atoi(n_value.c_str());
+    //            m = atoi(m_value.c_str());
+
+    //            assert(n > 0);
+    //            assert(m > 0);
+
+    //            continue;
+    //        }
+
+    //        if(marker == "")
+    //        {
+    //            output += c;
+    //        }
+    //        else
+    //        {
+    //            for(int r = 0; r < m; ++r)
+    //            {
+    //                for(int j = i; j < n + i; ++j)
+    //                {
+    //                    assert(j < s.length());
+    //                    
+    //                    c = s[j];
+    //                    
+    //                    output += c; 
+    //                }
+    //            }
+
+    //            i += n - 1;
+
+    //            marker.clear();
+    //            n = 0;
+    //            m = 0;
+    //        }
+    //    }
+    //}
+
+    ifstream in("Day9.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            string marker = "";
+            string output = "";
+
+            // length of data section
+            int n = 0;
+        
+            // how often to repeat
+            int m = 0;
+
+            for(int i = 0; i < s.length(); ++i)
+            {
+                char c = s[i];
+            
+                if(marker == "" && c == '(')
+                {
+                    // read marker
+                    for(++i;i < s.length();++i)
+                    {
+                        c = s[i];
+
+                        if(c == ')')
+                        {
+                            break;
+                        }
+
+                        marker += c;
+                    }
+            
+                    string n_value = marker.substr(0, marker.find('x'));
+                    string m_value = marker.substr(marker.find('x') + 1);
+
+                    n = atoi(n_value.c_str());
+                    m = atoi(m_value.c_str());
+
+                    assert(n > 0);
+                    assert(m > 0);
+
+                    continue;
+                }
+
+                if(marker == "")
+                {
+                    output += c;
+                }
+                else
+                {
+                    for(int r = 0; r < m; ++r)
+                    {
+                        for(int j = i; j < n + i; ++j)
+                        {
+                            assert(j < s.length());
+                        
+                            c = s[j];
+                        
+                            output += c; 
+                        }
+                    }
+
+                    i += n - 1;
+
+                    marker.clear();
+                    n = 0;
+                    m = 0;
+                }
+            }
+        
+            assert(output.find(' ') == string::npos);
+            cout << output.length() << endl;
+
+        }
+
+    }
+}
+
+
+string extract_first_marker(const string& s, int& n, int& m)
+{
+    assert(s[0] == '(');
+    string n_value = s.substr(1, s.find('x'));
+    string m_value = s.substr(s.find('x') + 1, s.find(')'));
+
+    n = atoi(n_value.c_str());
+    m = atoi(m_value.c_str());
+
+    assert(n > 0);
+    assert(m > 0);
+
+    return s.substr(s.find(')') + 1);
+}
+
+void print(const uint64_t& c)
+{
+    if(c > 0 && (c % 1000000) == 0)
+    {
+        cout << c << endl;
+    }
+}
+
+uint64_t function_calls = 0;
+
+void process(const string& s, uint64_t& length)
+{
+    ++function_calls;
+
+    // 
+    if(s.find('(') == string::npos)
+    {
+        length += s.length();
+        
+        print(length);
+        return;
+    }
+
+    string prefix = s.substr(0,s.find('('));
+    process(prefix, length);
+    
+    // decompress marker
+    string compressed = s.substr(s.find('('));
+    int n = 0;
+    int m = 0;
+    string section = extract_first_marker(compressed, n, m);
+    
+    for(int i = 0; i < m; ++i)
+    {
+        string a = section.substr(0, n);
+        process(a, length);
+    }
+    
+    string b = section.substr(n);
+    process(b, length);
+}
+
+
+void Explosives_In_Cyberspace__Part_2()
+{
+    /*
+    vector<string> test = {
+        "(3x3)XYZ",
+        "X(8x2)(3x3)ABCY",
+        "(27x12)(20x12)(13x14)(7x10)(1x12)A",
+        "(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN"
+    };
+
+    for(const auto& s : test)
+    {
+        uint64_t length = 0;
+        process(s, length);
+    
+        cout << s << "  ---  " << length << endl;
+    }
+    */
+
+    ifstream in("Day9.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            uint64_t length = 0;
+            process(s, length);
+    
+            cout << s << "  ---  " << length << endl;
+            cout << "function calls: " << function_calls << endl;
+        }
+    }
+}
 
 int main()
 {
@@ -1789,8 +2057,11 @@ int main()
 
     // Day 8
     //Two_Factor_Authentication();
-    Two_Factor_Authentication__Part_2();
+    //Two_Factor_Authentication__Part_2();
 
+    // Day 9
+    //Explosives_In_Cyberspace();
+    Explosives_In_Cyberspace__Part_2();
 
     return 0;
 }

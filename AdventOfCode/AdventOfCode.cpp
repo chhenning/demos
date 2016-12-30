@@ -1509,7 +1509,6 @@ void draw(int** screen, const int num_rows, const int num_columns, const vector<
                         screen[y][x] = 1;
                     }
                 }
-
             }
         }
         else if(i.find("rotate column") != string::npos)
@@ -1928,7 +1927,6 @@ void Explosives_In_Cyberspace()
     }
 }
 
-
 string extract_first_marker(const string& s, int& n, int& m)
 {
     assert(s[0] == '(');
@@ -1986,7 +1984,6 @@ void process(const string& s, uint64_t& length)
     process(b, length);
 }
 
-
 void Explosives_In_Cyberspace__Part_2()
 {
     /*
@@ -2029,8 +2026,445 @@ void Explosives_In_Cyberspace__Part_2()
     }
 }
 
+///
+/// Day 10
+///
+
+struct bin
+{
+    bin(int id)
+    : id(id)
+    {}
+
+    int id;
+
+    vector<int> chips;
+};
+
+struct bot
+{
+    bot(int id) 
+        : id(id)
+        
+        , c_low(-1)
+        , c_high(-1)
+
+        , low_bot_dest(-1)
+        , low_bin_dest(-1)
+        , high_bot_dest(-1)
+        , high_bin_dest(-1)
+    {}
+
+    void add_chip(int id)
+    {
+        if(c_low < 0 && c_high < 0)
+        { 
+            // both chips are unassigned 
+            c_low = id;
+        }
+        else if(c_low < 0 && c_high >= 0)
+        {
+            // only high chip is set
+
+            if(id > c_high)
+            {
+                c_low = c_high;
+                c_high = id;
+            }
+            else
+            {
+                c_low = id;
+            }
+        }
+        else if(c_low >= 0 && c_high < 0)
+        {
+            // only low chip is set
+
+            if(id < c_low)
+            {
+                c_high = c_low;
+                c_low = id;
+            }
+            else
+            {
+                c_high = id;
+            }
+        }
+        else
+        {
+            cerr << "this should not happen";
+        }
+    }
+
+    bool act(vector<bot>& bots, vector<bin>& bins)
+    {
+        bool something_happened = false;
+
+        if(c_low >= 0 && c_high >= 0)
+        {
+            // both chips are being set
+
+            if(low_bot_dest > 0)
+            {
+                cout << "adding " << c_low << " to bot " << low_bot_dest << endl;
+
+                assert(low_bin_dest < 0);
+
+                auto it = find_if(bots.begin(), bots.end(), [this](const bot& a) {return a.id == low_bot_dest; });
+                assert(it != bots.end());
+
+                it->add_chip(c_low);
+                c_low = -1;
+
+                something_happened = true;
+            }
+
+            if(high_bot_dest >= 0)
+            {
+                cout << "adding " << c_high << " to bot " << high_bot_dest << endl;
+
+                assert(high_bin_dest < 0);
+                
+                auto it = find_if(bots.begin(), bots.end(), [this](const bot& a) {return a.id == high_bot_dest; });
+                assert(it != bots.end());
+
+                it->add_chip(c_high);
+                c_high = -1;
+
+                something_happened = true;
+            }
+
+            if(low_bin_dest >= 0)
+            {
+                cout << "adding " << c_low << " to bin " << low_bin_dest << endl;
+
+                assert(low_bot_dest < 0);
+
+                auto it = find_if(bins.begin(), bins.end(), [this](const bin& a) {return a.id == low_bin_dest; });
+                assert(it != bins.end());
+
+                it->chips.push_back(c_low);
+                c_low = -1;
+
+                something_happened = true;
+            }
+
+            if(high_bin_dest >= 0)
+            {
+                cout << "adding " << c_high << " to bin " << high_bin_dest << endl;
+
+                assert(high_bot_dest < 0);
+
+                auto it = find_if(bins.begin(), bins.end(), [this](const bin& a) {return a.id == high_bin_dest; });
+                assert(it != bins.end());
+
+                it->chips.push_back(c_high);
+                c_high = -1;
+
+                something_happened = true;
+            }
+        }
+
+        return something_happened;
+    }
+
+    int id;
+    
+    int c_low;
+    int c_high;
+
+    int low_bot_dest;
+    int low_bin_dest;
+
+    int high_bot_dest;
+    int high_bin_dest;
+};
+
+vector<bot>::iterator create_bot(vector<bot>& bots, int id)
+{
+    auto it = find_if(bots.begin(), bots.end(), [id](const bot& a) { return a.id == id; });
+
+    if(it == bots.end())
+    {
+        bots.push_back(bot(id));
+        it = find_if(bots.begin(), bots.end(), [id](const bot& a) { return a.id == id; });
+    }
+
+    return it;
+}
+
+vector<bin>::iterator create_bin(vector<bin>& bins, int id)
+{
+    auto it = find_if(bins.begin(), bins.end(), [id](const bin& a) { return a.id == id; });
+
+    if(it == bins.end())
+    {
+        bins.push_back(bin(id));
+        it = find_if(bins.begin(), bins.end(), [id](const bin& a) { return a.id == id; });
+    }
+
+    return it;
+}
+
+
+void Balance_Bots()
+{
+/*
+    vector<string> instructions {
+        "value 5 goes to bot 2",
+        "bot 2 gives low to bot 1 and high to bot 0",
+        "value 3 goes to bot 1",
+        "bot 1 gives low to output 1 and high to bot 0",
+        "bot 0 gives low to output 2 and high to output 0",
+        "value 2 goes to bot 2"
+    };
+
+    regex assign_bot_regex("value (\\d*) goes to bot (\\d*)");
+    regex to_bot_bot_regex("bot (\\d*) gives low to bot (\\d*) and high to bot (\\d*)");
+    regex to_bot_bin_regex("bot (\\d*) gives low to bot (\\d*) and high to output (\\d*)");
+    regex to_bin_bot_regex("bot (\\d*) gives low to output (\\d*) and high to bot (\\d*)");
+    regex to_bin_bin_regex("bot (\\d*) gives low to output (\\d*) and high to output (\\d*)");
+
+
+    vector<bot> bots;
+    vector<bin> bins;
+
+    for(const auto& s : instructions)
+    {
+        smatch m;
+
+        if(regex_match(s, m, assign_bot_regex))
+        {
+            int chip_id = atoi(m[1].str().c_str());
+            int bot_id = atoi(m[2].str().c_str());
+
+            auto it = create_bot(bots, bot_id);
+            it->add_chip(chip_id);
+        }
+        else if(regex_match(s, m, to_bot_bot_regex))
+        {
+            int bot_id = atoi(m[1].str().c_str());
+            
+            int dest_1 = atoi(m[2].str().c_str());
+            int dest_2 = atoi(m[3].str().c_str());
+
+            auto it = create_bot(bots, bot_id);
+            it->low_bot_dest = dest_1;
+            it->high_bot_dest = dest_2;
+
+        }
+        else if(regex_match(s, m, to_bot_bin_regex))
+        {
+            int bot_id = atoi(m[1].str().c_str());
+            
+            int dest_1 = atoi(m[2].str().c_str());
+            int dest_2 = atoi(m[3].str().c_str());
+
+            auto it = create_bot(bots, bot_id);
+            
+            it->low_bot_dest = dest_1;
+            it->high_bin_dest = dest_2;
+
+            create_bin(bins, dest_2);
+        }
+        else if(regex_match(s, m, to_bin_bot_regex))
+        {
+            int bot_id = atoi(m[1].str().c_str());
+            
+            int dest_1 = atoi(m[2].str().c_str());
+            int dest_2 = atoi(m[3].str().c_str());
+
+            auto it = create_bot(bots, bot_id);
+            
+            it->low_bin_dest = dest_1;
+            it->high_bot_dest = dest_2;
+
+            create_bin(bins, dest_1);
+        }
+        else if(regex_match(s, m, to_bin_bin_regex))
+        {
+            int bot_id = atoi(m[1].str().c_str());
+            
+            int dest_1 = atoi(m[2].str().c_str());
+            int dest_2 = atoi(m[3].str().c_str());
+
+            auto it = create_bot(bots, bot_id);
+
+            it->low_bin_dest = dest_1;
+            it->high_bin_dest = dest_2;
+
+            create_bin(bins, dest_1);
+            create_bin(bins, dest_2);
+        }
+        else
+        {
+            cerr << "Cannot understand instruction: " << s << endl;
+            return;
+        }        
+    }
+
+    // run simulation
+
+    bool running = true;
+    do
+    {
+        bool something_happened = false;
+        for(auto& b : bots)
+        {
+            if(b.act(bots, bins))
+            {
+                something_happened =true;
+            }
+        }
+
+        running = something_happened;
+    }
+    while(running);
+
+    assert(find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 0;})->chips[0] == 5);
+    assert(find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 1;})->chips[0] == 2);
+    assert(find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 2;})->chips[0] == 3);
+*/
+
+    regex assign_bot_regex("value (\\d*) goes to bot (\\d*)");
+    regex to_bot_bot_regex("bot (\\d*) gives low to bot (\\d*) and high to bot (\\d*)");
+    regex to_bot_bin_regex("bot (\\d*) gives low to bot (\\d*) and high to output (\\d*)");
+    regex to_bin_bot_regex("bot (\\d*) gives low to output (\\d*) and high to bot (\\d*)");
+    regex to_bin_bin_regex("bot (\\d*) gives low to output (\\d*) and high to output (\\d*)");
+
+
+    vector<bot> bots;
+    vector<bin> bins;
+
+
+    ifstream in("Day10.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            smatch m;
+
+            if(regex_match(s, m, assign_bot_regex))
+            {
+                int chip_id = atoi(m[1].str().c_str());
+                int bot_id = atoi(m[2].str().c_str());
+
+                auto it = create_bot(bots, bot_id);
+                it->add_chip(chip_id);
+            }
+            else if(regex_match(s, m, to_bot_bot_regex))
+            {
+                int bot_id = atoi(m[1].str().c_str());
+            
+                int dest_1 = atoi(m[2].str().c_str());
+                int dest_2 = atoi(m[3].str().c_str());
+
+                auto it = create_bot(bots, bot_id);
+                it->low_bot_dest = dest_1;
+                it->high_bot_dest = dest_2;
+
+            }
+            else if(regex_match(s, m, to_bot_bin_regex))
+            {
+                int bot_id = atoi(m[1].str().c_str());
+            
+                int dest_1 = atoi(m[2].str().c_str());
+                int dest_2 = atoi(m[3].str().c_str());
+
+                auto it = create_bot(bots, bot_id);
+            
+                it->low_bot_dest = dest_1;
+                it->high_bin_dest = dest_2;
+
+                create_bin(bins, dest_2);
+            }
+            else if(regex_match(s, m, to_bin_bot_regex))
+            {
+                int bot_id = atoi(m[1].str().c_str());
+            
+                int dest_1 = atoi(m[2].str().c_str());
+                int dest_2 = atoi(m[3].str().c_str());
+
+                auto it = create_bot(bots, bot_id);
+            
+                it->low_bin_dest = dest_1;
+                it->high_bot_dest = dest_2;
+
+                create_bin(bins, dest_1);
+            }
+            else if(regex_match(s, m, to_bin_bin_regex))
+            {
+                int bot_id = atoi(m[1].str().c_str());
+            
+                int dest_1 = atoi(m[2].str().c_str());
+                int dest_2 = atoi(m[3].str().c_str());
+
+                auto it = create_bot(bots, bot_id);
+
+                it->low_bin_dest = dest_1;
+                it->high_bin_dest = dest_2;
+
+                create_bin(bins, dest_1);
+                create_bin(bins, dest_2);
+            }
+            else
+            {
+                cerr << "Cannot understand instruction: " << s << endl;
+                return;
+            }        
+
+        }
+    }
+
+    bool running = true;
+    int frame = 0;
+    do
+    {
+        cout << frame++ << endl;
+        
+        bool something_happened = false;
+        for(auto& b : bots)
+        {
+            //if(b.c_low == 17 && b.c_high == 61)
+            //{
+            //    cout << b.id << endl;
+            //    return;
+            //}
+
+            if(b.id == 128)
+            {
+                int oo = 9;
+            }
+
+            if(b.act(bots, bins))
+            {
+                something_happened =true;
+            }
+        }
+
+        running = something_happened;
+    }
+    while(running);
+
+    cout << "bin 0: " << find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 0;})->chips.size() << endl;
+    cout << "bin 1: " << find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 1;})->chips.size() << endl;
+    cout << "bin 2: " << find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 2;})->chips.size() << endl;
+
+}
+
+
 int main()
 {
+    // Day 1
     //No_Time_For_A_Taxi_Cab();
     //No_Time_For_A_Taxi_Cab__Part_2();
 
@@ -2061,7 +2495,10 @@ int main()
 
     // Day 9
     //Explosives_In_Cyberspace();
-    Explosives_In_Cyberspace__Part_2();
+    //Explosives_In_Cyberspace__Part_2();
+
+    // Day 10
+    Balance_Bots();
 
     return 0;
 }

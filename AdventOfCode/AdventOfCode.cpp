@@ -14,6 +14,7 @@
 #include <regex>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 
 // see https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
@@ -2026,6 +2027,210 @@ void Explosives_In_Cyberspace__Part_2()
     }
 }
 
+void Balance_Bots()
+{
+/*
+    vector<string> test {
+        "value 5 goes to bot 2",
+        "bot 2 gives low to bot 1 and high to bot 0",
+        "value 3 goes to bot 1",
+        "bot 1 gives low to output 1 and high to bot 0",
+        "bot 0 gives low to output 2 and high to output 0",
+        "value 2 goes to bot 2"
+    };
+
+    regex assign_bot_regex("value (\\d*) goes to bot (\\d*)");
+    regex bot_instruction__regex("bot (\\d*) gives low to (\\w+ \\d+) and high to (\\w+ \\d+)");
+
+    unordered_map<string, vector<int>> actors;
+    unordered_map<string, vector<string>> instructions;
+    
+
+    for(const auto& s : test)
+    {
+        smatch m;
+
+        if(regex_match(s, m, assign_bot_regex))
+        {
+            string bot("bot ");
+
+            int chip_id = atoi(m[1].str().c_str());
+            bot += m[2].str();
+
+            assert(actors[bot].size() < 2);
+                
+            actors[bot].push_back(chip_id);
+        }
+        else if(regex_match(s, m, bot_instruction__regex))
+        {
+            string bot("bot ");
+            bot += m[1].str();
+
+            string low_receiver = m[2].str();
+            string high_receiver = m[3].str();
+
+            actors[low_receiver].clear();
+            actors[high_receiver].clear();
+
+            instructions[bot].push_back(low_receiver);
+            instructions[bot].push_back(high_receiver);
+        }
+        else
+        {
+            cerr << "Cannot understand instruction: " << s << endl;
+            return;
+        }
+
+        // run simulation
+        bool running = false;
+
+        do
+        {
+            running = false;
+            
+            for(auto& a : actors)
+            {
+                if(a.first.find("bot") != string::npos && a.second.size() == 2)
+                {
+                    const string& low_receiver = instructions[a.first][0];
+                    const string& high_receiver = instructions[a.first][1];
+
+                    int low = std::min(a.second[0], a.second[1]);
+                    int high = std::max(a.second[0], a.second[1]);
+                    a.second.clear();
+
+                    actors[low_receiver].push_back(low);
+                    actors[high_receiver].push_back(high);
+
+                    assert(actors[low_receiver].size() <= 2);
+                    assert(actors[high_receiver].size() <= 2);
+
+                    running = true;
+                }
+            }
+        }
+        while(running);
+    }
+
+    assert(actors["output 0"][0] == 5);
+    assert(actors["output 1"][0] == 2);
+    assert(actors["output 2"][0] == 3);
+*/
+
+    regex assign_bot_regex("value (\\d*) goes to bot (\\d*)");
+    regex bot_instruction__regex("bot (\\d*) gives low to (\\w+ \\d+) and high to (\\w+ \\d+)");
+
+    unordered_map<string, vector<int>> actors;
+    unordered_map<string, vector<string>> instructions;
+
+
+    ifstream in("Day10.txt");
+    if(!in)
+    {
+        cerr << "Cannot find file." << endl;
+        return;
+    }
+
+    string s;
+    while (in)
+    {
+        getline(in, s);
+
+        if(s.length() > 0)
+        {
+            smatch m;
+
+            if(regex_match(s, m, assign_bot_regex))
+            {
+                string bot("bot ");
+
+                int chip_id = atoi(m[1].str().c_str());
+                bot += m[2].str();
+
+                assert(actors[bot].size() < 2);
+                
+                actors[bot].push_back(chip_id);
+            }
+            else if(regex_match(s, m, bot_instruction__regex))
+            {
+                string bot("bot ");
+                bot += m[1].str();
+
+                string low_receiver = m[2].str();
+                string high_receiver = m[3].str();
+
+                //actors[low_receiver].clear();
+                //actors[high_receiver].clear();
+
+                instructions[bot].push_back(low_receiver);
+                instructions[bot].push_back(high_receiver);
+            }
+            else
+            {
+                cerr << "Cannot understand instruction: " << s << endl;
+                return;
+            }
+        }
+    }
+
+
+    // run simulation
+    bool running = false;
+    int frame = 0;
+
+    do
+    {
+        //cout << frame++ << endl;
+
+        running = false;
+            
+        for(auto& a : actors)
+        {
+            if(a.first.find("bot") != string::npos && a.second.size() == 2)
+            {
+                assert(instructions[a.first].size() == 2);
+                        
+                const string& low_receiver = instructions[a.first][0];
+                const string& high_receiver = instructions[a.first][1];
+
+                int low = std::min(a.second[0], a.second[1]);
+                int high = std::max(a.second[0], a.second[1]);
+                a.second.clear();
+
+                //if(low == 17 && high == 61)
+                //{
+                //    cout << a.first << endl;
+                //    return;
+                //}
+
+                if(low == 67)
+                    cout << a.first << " adding " << low << " to " << low_receiver << endl;
+                
+                if(high == 67)
+                    cout << a.first << " adding " << high << " to " << high_receiver << endl;
+
+                actors[low_receiver].push_back(low);
+                actors[high_receiver].push_back(high);
+
+                assert(actors[low_receiver].size() <= 2);
+                assert(actors[high_receiver].size() <= 2);
+
+                running = true;
+            }
+        }
+    }
+    while(running);
+
+
+    auto& aa = actors["output 0"][0];
+    auto& bb = actors["output 1"][0];
+    auto& cc = actors["output 2"][0];
+
+    int dd = aa * bb* cc;
+}
+
+
+
 ///
 /// Day 10
 ///
@@ -2102,11 +2307,17 @@ struct bot
 
         if(c_low >= 0 && c_high >= 0)
         {
+            if(c_low == 67 || c_high == 67)
+            {
+                if(id == 25)
+                    int iiiii = 9;
+            }
+            
             // both chips are being set
 
-            if(low_bot_dest > 0)
+            if(low_bot_dest >= 0)
             {
-                cout << "adding " << c_low << " to bot " << low_bot_dest << endl;
+                cout << "bot " << id << " adding " << c_low << " to bot " << low_bot_dest << endl;
 
                 assert(low_bin_dest < 0);
 
@@ -2121,7 +2332,7 @@ struct bot
 
             if(high_bot_dest >= 0)
             {
-                cout << "adding " << c_high << " to bot " << high_bot_dest << endl;
+                cout << "bot " << id << " adding " << c_high << " to bot " << high_bot_dest << endl;
 
                 assert(high_bin_dest < 0);
                 
@@ -2136,7 +2347,7 @@ struct bot
 
             if(low_bin_dest >= 0)
             {
-                cout << "adding " << c_low << " to bin " << low_bin_dest << endl;
+                cout << "bot " << id << " adding " << c_low << " to bin " << low_bin_dest << endl;
 
                 assert(low_bot_dest < 0);
 
@@ -2151,7 +2362,7 @@ struct bot
 
             if(high_bin_dest >= 0)
             {
-                cout << "adding " << c_high << " to bin " << high_bin_dest << endl;
+                cout << "bot " << id << " adding " << c_high << " to bin " << high_bin_dest << endl;
 
                 assert(high_bot_dest < 0);
 
@@ -2206,126 +2417,8 @@ vector<bin>::iterator create_bin(vector<bin>& bins, int id)
     return it;
 }
 
-
-void Balance_Bots()
+void Balance_Bots_Incorrect()
 {
-/*
-    vector<string> instructions {
-        "value 5 goes to bot 2",
-        "bot 2 gives low to bot 1 and high to bot 0",
-        "value 3 goes to bot 1",
-        "bot 1 gives low to output 1 and high to bot 0",
-        "bot 0 gives low to output 2 and high to output 0",
-        "value 2 goes to bot 2"
-    };
-
-    regex assign_bot_regex("value (\\d*) goes to bot (\\d*)");
-    regex to_bot_bot_regex("bot (\\d*) gives low to bot (\\d*) and high to bot (\\d*)");
-    regex to_bot_bin_regex("bot (\\d*) gives low to bot (\\d*) and high to output (\\d*)");
-    regex to_bin_bot_regex("bot (\\d*) gives low to output (\\d*) and high to bot (\\d*)");
-    regex to_bin_bin_regex("bot (\\d*) gives low to output (\\d*) and high to output (\\d*)");
-
-
-    vector<bot> bots;
-    vector<bin> bins;
-
-    for(const auto& s : instructions)
-    {
-        smatch m;
-
-        if(regex_match(s, m, assign_bot_regex))
-        {
-            int chip_id = atoi(m[1].str().c_str());
-            int bot_id = atoi(m[2].str().c_str());
-
-            auto it = create_bot(bots, bot_id);
-            it->add_chip(chip_id);
-        }
-        else if(regex_match(s, m, to_bot_bot_regex))
-        {
-            int bot_id = atoi(m[1].str().c_str());
-            
-            int dest_1 = atoi(m[2].str().c_str());
-            int dest_2 = atoi(m[3].str().c_str());
-
-            auto it = create_bot(bots, bot_id);
-            it->low_bot_dest = dest_1;
-            it->high_bot_dest = dest_2;
-
-        }
-        else if(regex_match(s, m, to_bot_bin_regex))
-        {
-            int bot_id = atoi(m[1].str().c_str());
-            
-            int dest_1 = atoi(m[2].str().c_str());
-            int dest_2 = atoi(m[3].str().c_str());
-
-            auto it = create_bot(bots, bot_id);
-            
-            it->low_bot_dest = dest_1;
-            it->high_bin_dest = dest_2;
-
-            create_bin(bins, dest_2);
-        }
-        else if(regex_match(s, m, to_bin_bot_regex))
-        {
-            int bot_id = atoi(m[1].str().c_str());
-            
-            int dest_1 = atoi(m[2].str().c_str());
-            int dest_2 = atoi(m[3].str().c_str());
-
-            auto it = create_bot(bots, bot_id);
-            
-            it->low_bin_dest = dest_1;
-            it->high_bot_dest = dest_2;
-
-            create_bin(bins, dest_1);
-        }
-        else if(regex_match(s, m, to_bin_bin_regex))
-        {
-            int bot_id = atoi(m[1].str().c_str());
-            
-            int dest_1 = atoi(m[2].str().c_str());
-            int dest_2 = atoi(m[3].str().c_str());
-
-            auto it = create_bot(bots, bot_id);
-
-            it->low_bin_dest = dest_1;
-            it->high_bin_dest = dest_2;
-
-            create_bin(bins, dest_1);
-            create_bin(bins, dest_2);
-        }
-        else
-        {
-            cerr << "Cannot understand instruction: " << s << endl;
-            return;
-        }        
-    }
-
-    // run simulation
-
-    bool running = true;
-    do
-    {
-        bool something_happened = false;
-        for(auto& b : bots)
-        {
-            if(b.act(bots, bins))
-            {
-                something_happened =true;
-            }
-        }
-
-        running = something_happened;
-    }
-    while(running);
-
-    assert(find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 0;})->chips[0] == 5);
-    assert(find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 1;})->chips[0] == 2);
-    assert(find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 2;})->chips[0] == 3);
-*/
-
     regex assign_bot_regex("value (\\d*) goes to bot (\\d*)");
     regex to_bot_bot_regex("bot (\\d*) gives low to bot (\\d*) and high to bot (\\d*)");
     regex to_bot_bin_regex("bot (\\d*) gives low to bot (\\d*) and high to output (\\d*)");
@@ -2429,22 +2522,11 @@ void Balance_Bots()
     int frame = 0;
     do
     {
-        cout << frame++ << endl;
+        //cout << frame++ << endl;
         
         bool something_happened = false;
         for(auto& b : bots)
         {
-            //if(b.c_low == 17 && b.c_high == 61)
-            //{
-            //    cout << b.id << endl;
-            //    return;
-            //}
-
-            if(b.id == 128)
-            {
-                int oo = 9;
-            }
-
             if(b.act(bots, bins))
             {
                 something_happened =true;
@@ -2454,11 +2536,6 @@ void Balance_Bots()
         running = something_happened;
     }
     while(running);
-
-    cout << "bin 0: " << find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 0;})->chips.size() << endl;
-    cout << "bin 1: " << find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 1;})->chips.size() << endl;
-    cout << "bin 2: " << find_if(bins.begin(), bins.end(), [](const bin& a){return a.id == 2;})->chips.size() << endl;
-
 }
 
 
@@ -2498,7 +2575,8 @@ int main()
     //Explosives_In_Cyberspace__Part_2();
 
     // Day 10
-    Balance_Bots();
+    Balance_Bots_Incorrect();
+    //Balance_Bots();
 
     return 0;
 }

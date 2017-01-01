@@ -3,23 +3,13 @@
 
 #include "stdafx.h"
 
-#include <cassert>
-#include <cmath>
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <map>
-#include <regex>
-#include <string>
-#include <sstream>
-#include <unordered_map>
-#include <vector>
 
 // see https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
 extern "C" void md5_compress(uint32_t state[4], const uint8_t block[64]);
 extern "C" void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]);
+
+void run_day_11();
 
 using namespace std;
 
@@ -2233,6 +2223,58 @@ void Balance_Bots()
     int dd = aa * bb* cc;
 }
 
+///
+/// Day 11
+///
+
+template<typename T>
+void find_node(const T& tree, const string& top, const string& node_to_find, int level)
+{
+    if(top != node_to_find)
+    {
+        const auto& childs = tree.at(top);
+        
+        for(const string& n : childs)
+        {
+            find_node(tree, n, node_to_find, level + 1);
+        }
+    }
+    else
+    {
+        // found
+        cout << top << " at level " << level << endl;
+    }
+
+}
+
+void Radioisotope_Thermoelectric_Generators()
+{
+    unordered_map<string,vector<string>> decision_tree
+    {
+        { "1", {"2", "3"} },
+        { "2", {"4", "5"} },
+        { "3", {"8", "9"} },
+        { "4", {"10", "11"} },
+        { "5", {} },
+        { "8", {} },
+        { "9", {} },
+        { "10", {} },
+        { "11", {} },
+    };
+
+    string root = "1";
+    string c = "bla";
+    
+    if(decision_tree.find(c) == decision_tree.end())
+    {
+        decision_tree["11"].push_back(c);
+    }
+
+    find_node(decision_tree, root, c, 0);
+}
+
+
+
 int main()
 {
     // Day 1
@@ -2269,7 +2311,10 @@ int main()
     //Explosives_In_Cyberspace__Part_2();
 
     // Day 10
-    Balance_Bots();
+    //Balance_Bots();
+
+    // Day 11
+    run_day_11();
 
     return 0;
 }

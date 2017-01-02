@@ -8,9 +8,9 @@ struct situation
     : elevator(min_floor)
     {}
 
-    void add_item(string name, int floor)
+    void add_item(std::string name, int floor)
     {
-        items.push_back({ name, floor });
+        items.push_back({name, floor});
     }
 
     bool operator==(const situation& other) const
@@ -35,7 +35,7 @@ struct situation
         return moveable_items;
     }
 
-    bool finished()
+    bool finished() const
     {
         for(const auto& i : items)
         {
@@ -47,7 +47,6 @@ struct situation
 
         return true;
     }
-
 
     static const int max_floor = 4;
     static const int min_floor = 1;
@@ -79,10 +78,6 @@ namespace std
     };
 }
 
-
-
-
-
 using namespace std;
 
 vector<situation> generate(const situation& start)
@@ -91,6 +86,8 @@ vector<situation> generate(const situation& start)
 
     // 1. find all elements on same floor as the elevator
     auto moveable_items = start.get_moveable_items();
+
+    // @todo only allows up to two items into an elevator
 
     // 2. Move up elevator by one
     if(start.elevator < situation::max_floor)
@@ -106,7 +103,8 @@ vector<situation> generate(const situation& start)
             {
                 if(i & (1 << j))
                 {
-                    s.items.push_back(moveable_items[j]);
+                    const string& name = moveable_items[j].first;
+                    s.add_item(name, s.elevator);
                 }
             }
 
@@ -128,7 +126,8 @@ vector<situation> generate(const situation& start)
             {
                 if(i & (1 << j))
                 {
-                    s.items.push_back(moveable_items[j]);
+                    const string& name = moveable_items[j].first;
+                    s.add_item(name, s.elevator);
                 }
             }
 
@@ -139,7 +138,6 @@ vector<situation> generate(const situation& start)
     return new_situations;
 }
 
-
 void run_day_11()
 {
     unordered_map<situation,vector<situation>> decision_tree;
@@ -148,14 +146,41 @@ void run_day_11()
     start.add_item("G", situation::min_floor);
     start.add_item("M", situation::min_floor);
 
-    auto next_situations = generate(start);
+    decision_tree[start];
 
-    for(const auto& s : next_situations)
+    while(true)
     {
-        if(decision_tree.find(s) == decision_tree.end())
+        for(const auto& s : decision_tree)
         {
-            decision_tree[start].push_back(s);
-            decision_tree[s].clear();
+            if(s.second.size() == 0)
+            {
+                auto next_moves = generate(s.first);
+
+                for(const auto& m: next_moves)
+                {
+                    if(decision_tree[m].size() > 0) { continue; }
+
+                    decision_tree[s.first].push_back(m);
+                    decision_tree[m];
+                }
+            }
+        }
+
+
+        bool success = false;
+
+        // look if a solution is available
+        for(const auto& s : decision_tree)
+        {
+            if(s.first.finished())
+            {
+                success = true;
+            }
+        }
+
+        if(success)
+        {
+            break;        
         }
     }
 

@@ -13,6 +13,15 @@ struct situation
         items.push_back({name, floor});
     }
 
+    void move_item(const std::string& name, int floor )
+    {
+        auto it = std::find_if(items.begin(), items.end(), [&name](const std::pair<std::string,int>& a) { return a.first == name; });
+
+        assert(it != items.end());
+
+        it->second = floor;
+    }
+
     bool operator==(const situation& other) const
     {
         bool items_equal = equal(items.begin(), items.end(), other.items.begin(), other.items.end());
@@ -48,12 +57,35 @@ struct situation
         return true;
     }
 
-    static const int max_floor = 4;
+    static const int max_floor = 3;
     static const int min_floor = 1;
 
     int elevator;
     std::vector<std::pair<std::string,int>> items;
 };
+
+std::ostream& operator<< (std::ostream& stream, const situation& s)
+{
+    stream << s.elevator << " ";
+    
+    for(int i = 0; i < s.items.size(); ++i)
+    {
+        const auto& item = s.items[i];
+
+        if((i + 1) == s.items.size())
+        {
+            stream << item.first << "-" << item.second;
+        }
+        else
+        {
+            stream << item.first << "-" << item.second << " --- ";
+        }
+    }
+
+    stream << std::endl;
+    
+    return stream;
+}
 
 namespace std
 {
@@ -96,7 +128,7 @@ vector<situation> generate(const situation& start)
 
         for(int i = 1; i <= num_combinations; ++i)
         {
-            situation s;
+            situation s(start);
             s.elevator = start.elevator + 1;
 
             for(int j = 0; j < moveable_items.size(); ++j)
@@ -104,7 +136,7 @@ vector<situation> generate(const situation& start)
                 if(i & (1 << j))
                 {
                     const string& name = moveable_items[j].first;
-                    s.add_item(name, s.elevator);
+                    s.move_item(name, s.elevator);
                 }
             }
 
@@ -119,7 +151,7 @@ vector<situation> generate(const situation& start)
 
         for(int i = 1; i <= num_combinations; ++i)
         {
-            situation s;
+            situation s(start);
             s.elevator = start.elevator - 1;
 
             for(int j = 0; j < moveable_items.size(); ++j)
@@ -127,7 +159,7 @@ vector<situation> generate(const situation& start)
                 if(i & (1 << j))
                 {
                     const string& name = moveable_items[j].first;
-                    s.add_item(name, s.elevator);
+                    s.move_item(name, s.elevator);
                 }
             }
 
@@ -138,6 +170,29 @@ vector<situation> generate(const situation& start)
     return new_situations;
 }
 
+
+void find_node(const unordered_map<situation,vector<situation>>& tree
+    , const situation& top
+    , int level)
+{
+
+    if(top.finished() == false)
+    {
+        const auto& childs = tree.at(top);
+        
+        for(const auto& n : childs)
+        {
+            find_node(tree, n, level + 1);
+        }
+    }
+    else
+    {
+        // found
+        cout << " at level " << level << endl;
+    }
+
+}
+
 void run_day_11()
 {
     unordered_map<situation,vector<situation>> decision_tree;
@@ -146,10 +201,14 @@ void run_day_11()
     start.add_item("G", situation::min_floor);
     start.add_item("M", situation::min_floor);
 
+    cout << start;
+
     decision_tree[start];
 
     while(true)
     {
+        bool node_added = false;
+
         for(const auto& s : decision_tree)
         {
             if(s.second.size() == 0)
@@ -162,27 +221,28 @@ void run_day_11()
 
                     decision_tree[s.first].push_back(m);
                     decision_tree[m];
+
+                    node_added = true;
                 }
             }
         }
 
-
-        bool success = false;
-
-        // look if a solution is available
-        for(const auto& s : decision_tree)
+        if(node_added == false)
         {
-            if(s.first.finished())
-            {
-                success = true;
-            }
+            break;
         }
 
-        if(success)
-        {
-            break;        
-        }
     }
+
+    for(const auto& s : decision_tree)
+    {
+        cout << s.first;
+    }
+
+
+    // solution is found
+    find_node(decision_tree, start, 0);
+
 
 
 /*

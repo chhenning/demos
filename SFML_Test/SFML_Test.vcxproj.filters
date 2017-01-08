@@ -44,5 +44,8 @@
     <ClCompile Include="simple_2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="julia_set.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -7,13 +7,14 @@
 #include <SFML/OpenGL.hpp>
 
 extern void run_mandelbrot();
+extern void run_julia_set();
 
 void run_particle_system();
 
 
 int main()
 {
-    run_mandelbrot();
+    run_julia_set();
     
     return 0;
 }

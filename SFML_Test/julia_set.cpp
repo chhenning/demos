@@ -19,14 +19,21 @@ using std::chrono::milliseconds;
 using namespace std::literals::chrono_literals;
 
 
-const int width = 800;
+const int width = 1200;
 const int height = 800;
-const int max_iterations = 1000;
+const int max_iterations = 100;
 
 
-float min_value = -2.5f;
-float max_value = 2.5f;
-int infinity = 16;
+float plane_width = 5;
+
+float js_infinity = 16.f;
+
+
+int mouse_x = 0;
+int mouse_y = 0;
+
+float angle = 0.f;
+
 
 inline
 void set_pixel(byte_t* pixels, const int x, const int y, const byte_t r, const byte_t g, const byte_t b, const byte_t a = 255)
@@ -37,36 +44,49 @@ void set_pixel(byte_t* pixels, const int x, const int y, const byte_t r, const b
     pixels[((x + y * width) * 4) + 3] = a; // alpha
 }
 
-void draw_mandelbrot(byte_t* pixels)
+void draw_julia_set(byte_t* pixels)
 {
-    //set_pixel(pixels, 799, 799, 255, 0, 0);
+    // if c_b ( the imaginary compoent) is 0 the resulting julia is perfectly symmetrical 
+    
+    //float c_a = processing::map(mouse_x, 0, width, -1.f, 1.f);
+    //float c_b = processing::map(mouse_y, 0, height, -1.f, 1.f);
 
-    // https://en.wikipedia.org/wiki/Mandelbrot_set
-    // Mandelbrot is a set of comples numbers c ( the image ) for which the function f(z) = z^2 + c does not diverge when iterated from z = 0.
+    //float c_a = cosf(angle * 3.213f);
+    //float c_b = sinf(angle);;
 
-    // 1. define a range to work with, starting with [-2.5,2.5]
-    // 2. map each pixel x and y into that space
-    // 3. value a (real component) and b (imaginary component) of complex number c
-    // 4. iterate to see if goes into infinity (here > 16)
-    //    f(z_0) = c
-    //    f(z_1) = z_0^2 + c_1 = c_1
-    //    f(z_2) = z_1^2 + c = c_1^2 + c_2
-    // 5. for each iteration test of f(z_n) goes into infinity (> 16 at the start)
-    // 6. Use number of iterations to color a pixel
+    float c_a = -0.4;
+    float c_b = 0.6;
 
+
+
+    // http://paulbourke.net/fractals/juliaset/
+    // https://en.wikipedia.org/wiki/Julia_set
+    // c is a constant, like c=-0.70176-0.3842i
+
+
+    // define a complex plane with just one number w
+    // w can then be used for zooming
+    float plane_height = (plane_width * height) / width;
+
+    float plane_x_min = -plane_width / 2.f;
+    float plane_y_min = -plane_height / 2.f;
+
+    float plane_x_max = plane_x_min + plane_width;
+    float plane_y_max = plane_y_min + plane_height;
+
+    float plane_dx = ( plane_x_max - plane_x_min ) / width;
+    float plane_dy = ( plane_y_max - plane_y_min ) / height;
+
+    float plane_y = plane_y_min;
     for(int y = 0; y < height; ++y)
     {
+        float plane_x = plane_x_min;
         for(int x = 0; x < width; ++x)
         {
-            float a = processing::map(x, 0, width, min_value, max_value);
-            float b = processing::map(y, 0, height, min_value, max_value);
-
-            float c_a = a;
-            float c_b = b;
+            float a = plane_x;
+            float b = plane_y;
 
             int n = 0;
-
-            float z = 0.f;
 
             // integrate 100 times
             while(n < max_iterations)
@@ -78,7 +98,7 @@ void draw_mandelbrot(byte_t* pixels)
                 b = imag + c_b;
 
                 // square so that a and b are positive
-                if((a * a + b * b) > infinity)
+                if((a * a + b * b) > js_infinity)
                 {
                     break;
                 }
@@ -86,28 +106,47 @@ void draw_mandelbrot(byte_t* pixels)
                 n++;
             }
 
-            //float gray = processing::map(n, 0, max_iterations, 0, 255);
-            float gray = ( n * 32 ) % 255;
-            //assert(gray >= 0.0 && gray <= 255.0);
+
+            // color pixel
 
             if(n == max_iterations)
             {
-                gray = 0;
+                set_pixel(pixels, x, y, 0, 0, 0);
+            }
+            else
+            {
+                float gray = ( n * 32 ) % 255;
+                //double hue = ( n * 32 ) % 360;
+                double hue = sqrt(((double) n) / max_iterations) * 360.0;
+
+                color::hsv hsv_color = { hue, 1.0, 1.0 };
+                color::rgb c = color::hsv2rgb(hsv_color);
+            
+                c.r *= 255.0;
+                c.g *= 255.0;
+                c.b *= 255.0;
+
+                set_pixel(pixels, x, y, c.r, c.g, c.b);
+                //set_pixel(pixels, x, y, gray, gray, gray);
             }
 
-            set_pixel(pixels, x, y, gray, gray, gray);
+            plane_x += plane_dx;
         }
+
+        plane_y += plane_dy;
     }
 }
 
 
-void run_mandelbrot()
+void run_julia_set()
 {
-    sf::RenderWindow window(sf::VideoMode(width, height), "Mandelbrot Set");
+    sf::RenderWindow window(sf::VideoMode(width, height), "Julia Set");
+    window.setFramerateLimit(30);
+
 
     // RGBA per pixel
     byte_t* pixels = new byte_t[width * height * 4];
-    draw_mandelbrot(pixels);
+    draw_julia_set(pixels);
 
 
     //for(int y = 0; y < height; ++y)
@@ -131,7 +170,9 @@ void run_mandelbrot()
 
     while (window.isOpen())
     {
-        bool redraw = false;
+        angle += 0.03;
+        plane_width -= 0.03;
+
         bool show_render_time = false;
 
         // handle events
@@ -149,44 +190,23 @@ void run_mandelbrot()
 
                 case sf::Event::KeyPressed:
                 {
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-                    {
-                        min_value += 0.1f;
-                        redraw = true;
-                    }
-
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-                    {
-                        min_value -= 0.1f;
-                        redraw = true;
-                    }
-
-
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-                    {
-                        max_value += 0.1f;
-                        redraw = true;
-                    }
-
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-                    {
-                        max_value -= 0.1f;
-                        redraw = true;
-                    }
-
                     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
                     {
                         window.close();
                     }
 
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-                    {
-                        infinity += 16;
-                        redraw = true;
-                    }
-
-
                     break;
+                }
+
+                case sf::Event::MouseMoved:
+                {
+                    sf::Vector2i mouse = sf::Mouse::getPosition(window);
+                    sf::Vector2f coords = window.mapPixelToCoords(mouse);
+
+                    mouse_x = coords.x;
+                    mouse_y = coords.y;
+
+                    break;                
                 }
             }
         }
@@ -195,16 +215,14 @@ void run_mandelbrot()
 
         window.clear();
 
-        if(redraw)
-        {
-            render_start = Clock::now();
-            
-            draw_mandelbrot(pixels);
-            
-            render_end = Clock::now();
 
-            show_render_time = true;
-        }
+        render_start = Clock::now();
+            
+        draw_julia_set(pixels);
+            
+        render_end = Clock::now();
+
+
 
         texture.update(pixels);
 

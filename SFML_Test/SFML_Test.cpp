@@ -6,6 +6,18 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
+extern void run_mandelbrot();
+
+void run_particle_system();
+
+
+int main()
+{
+    run_mandelbrot();
+    
+    return 0;
+}
+
 
 class ParticleSystem : public sf::Drawable, public sf::Transformable
 {
@@ -85,8 +97,7 @@ private:
     sf::Vector2f m_emitter;
 };
 
-
-int main()
+void run_particle_system()
 {
     // create the window
     sf::RenderWindow window(sf::VideoMode(512, 256), "Particles");
@@ -121,6 +132,4 @@ int main()
         window.draw(particles);
         window.display();
     }
-
-    return 0;
 }

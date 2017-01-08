@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <SFML/Graphics.hpp>
 
 #include <iostream>
@@ -27,11 +29,9 @@ void offscreen_draw()
 
 }
 
-
-
-int main()
+void tutorial()
 {
-    // Multiple windows are possible but each window event loop must be in the same thread in which the window was created.
+    // Multiple windows are possible but each window's event loop must be in the same thread in which the window was created.
     // * either the same thread
     // * each window has its own thread
 
@@ -99,8 +99,4 @@ int main()
         // copy hidden buffer into window
         window.display();
     }
-
-
-
-    return 0;
 }

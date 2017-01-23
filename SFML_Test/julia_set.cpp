@@ -46,7 +46,7 @@ void set_pixel(byte_t* pixels, const int x, const int y, const byte_t r, const b
 
 void draw_julia_set(byte_t* pixels)
 {
-    // if c_b ( the imaginary compoent) is 0 the resulting julia is perfectly symmetrical 
+    // if c_b ( the imaginary component) is 0 the resulting julia is perfectly symmetrical 
     
     //float c_a = processing::map(mouse_x, 0, width, -1.f, 1.f);
     //float c_b = processing::map(mouse_y, 0, height, -1.f, 1.f);

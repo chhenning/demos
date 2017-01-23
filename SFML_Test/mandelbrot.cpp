@@ -42,7 +42,7 @@ void draw_mandelbrot(byte_t* pixels)
     //set_pixel(pixels, 799, 799, 255, 0, 0);
 
     // https://en.wikipedia.org/wiki/Mandelbrot_set
-    // Mandelbrot is a set of comples numbers c ( the image ) for which the function f(z) = z^2 + c does not diverge when iterated from z = 0.
+    // Mandelbrot is a set of complex numbers c ( the image ) for which the function f(z) = z^2 + c does not diverge when iterated from z = 0.
 
     // 1. define a range to work with, starting with [-2.5,2.5]
     // 2. map each pixel x and y into that space

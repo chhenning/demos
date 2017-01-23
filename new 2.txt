@@ -1,0 +1,11 @@
+ c++ code snippets
+ 
+ // init vector with range from 0 - 250
+ //tags: stl, algorithm
+ 
+ #include <numeric>
+ vector<int> p;
+ std::iota(p.begin(), p.end(), 0);
+ 
+ 
+ 

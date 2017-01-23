@@ -151,6 +151,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="perlin.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utilities.hpp" />
@@ -158,6 +159,8 @@
   <ItemGroup>
     <ClCompile Include="julia_set.cpp" />
     <ClCompile Include="mandelbrot.cpp" />
+    <ClCompile Include="perlin_noise.cpp" />
+    <ClCompile Include="perlin_test.cpp" />
     <ClCompile Include="SFML_Test.cpp" />
     <ClCompile Include="simple_2D.cpp" />
     <ClCompile Include="stdafx.cpp">

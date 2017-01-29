@@ -5,13 +5,28 @@
 
 namespace processing
 {
+    
+
     /// \brief Map a value from one range to another. Value can be outside its own range.
+    /// \remarks An input range of [input_start, input_end] has input_end - input_start + 1 numbers. So it's equivalent to a range of [0, r], where r = input_end - input_start.
+    ///          Similarly, the output range is equivalent to [0, R], where R = output_end - output_start.
+    ///          An input of input is equivalent to x = input - input_start. This, from the first paragraph will translate to y = (R/r)*x. Then, we can translate the y value back to the original output range by adding output_start: output = output_start + y.
+    ///          (see //http://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another)
     inline
     float map(float value, float start1, float stop1, float start2, float stop2)
     {
-        float x = value / ( stop1 - start1 );
+        return start2 + ((stop2 - start2) / (stop1 - start1)) * (value - start1);
+    }
 
-        return start2 + ( stop2 - start2 ) * x;
+    /// \brief Map a value from one range to another. Value can be outside its own range.
+    /// \remarks An input range of [input_start, input_end] has input_end - input_start + 1 numbers. So it's equivalent to a range of [0, r], where r = input_end - input_start.
+    ///          Similarly, the output range is equivalent to [0, R], where R = output_end - output_start.
+    ///          An input of input is equivalent to x = input - input_start. This, from the first paragraph will translate to y = (R/r)*x. Then, we can translate the y value back to the original output range by adding output_start: output = output_start + y.
+    ///          (see //http://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another)
+    inline
+    double map(double value, double start1, double stop1, double start2, double stop2)
+    {
+        return start2 + ((stop2 - start2) / (stop1 - start1)) * (value - start1);
     }
 
     inline
@@ -25,7 +40,7 @@ namespace processing
     inline
     float random(float high)
     {
-        return (std::rand() % ((int)high));
+        return (float)(std::rand() % ((int)high));
     }
 }
 

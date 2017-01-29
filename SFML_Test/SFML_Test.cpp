@@ -8,13 +8,16 @@
 
 extern void run_mandelbrot();
 extern void run_julia_set();
+extern void run_perlin_noise__1D();
+extern void run_perlin_noise__2D();
+
 
 void run_particle_system();
 
 
 int main()
 {
-    run_julia_set();
+    run_perlin_noise__2D();
     
     return 0;
 }

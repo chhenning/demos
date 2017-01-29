@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="tutorial">
+      <UniqueIdentifier>{3c33ad1b-7083-460b-b132-dfb7fdf3b787}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,7 +30,10 @@
     <ClInclude Include="utilities.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="perlin.hpp">
+    <ClInclude Include="perlin_noise.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FastNoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -36,9 +42,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SFML_Test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tutorial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mandelbrot.cpp">
@@ -50,10 +53,22 @@
     <ClCompile Include="julia_set.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="perlin_noise.cpp">
+    <ClCompile Include="FastNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="perlin_test.cpp">
+    <ClCompile Include="tutorial.cpp">
+      <Filter>tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="start__using_byte_array.cpp">
+      <Filter>tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="start__using_SFML_render_texture.cpp">
+      <Filter>tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="perlin_noise__1D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="perlin_noise__2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

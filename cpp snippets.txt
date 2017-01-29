@@ -1,2 +1,29 @@
-[DOLLAR] co-payment for cardiac and [DOLLAR] co-payment for pulmonary rehabilitation services performed at an outpatient hospital
-[DOLLAR] co-payment for cardiac and [DOLLAR] co-payment for pulmonary rehabilitation services performed at an outpatient hospital
+ c++ code snippets
+ 
+ // init vector with range from 0 - 250
+ //tags: stl, algorithm
+ 
+ #include <numeric>
+ vector<int> p;
+ std::iota(p.begin(), p.end(), 0);
+ 
+ 
+ 
+ // 
+ #include <chrono>
+
+using Clock = std::chrono::steady_clock;
+using std::chrono::time_point;
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using namespace std::literals::chrono_literals;
+
+time_point<Clock> start = Clock::now();
+time_point<Clock> end = Clock::now();
+
+milliseconds diff = duration_cast<milliseconds>(end - start);
+std::cout << "Render time: " << diff.count() << "ms" << std::endl;
+
+
+
+

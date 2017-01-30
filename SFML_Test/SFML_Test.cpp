@@ -10,14 +10,14 @@ extern void run_mandelbrot();
 extern void run_julia_set();
 extern void run_perlin_noise__1D();
 extern void run_perlin_noise__2D();
-
+extern void run_flowfield();
 
 void run_particle_system();
 
 
 int main()
 {
-    run_perlin_noise__2D();
+    run_flowfield();
     
     return 0;
 }

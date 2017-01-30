@@ -26,6 +26,8 @@ struct context
         columns = floor(width / scale);
         rows = floor(height / scale);
 
+        time_offset = 0.01;
+
         frequency = 0.01;
     }
 
@@ -35,6 +37,8 @@ struct context
     float scale;
     int columns;
     int rows;
+
+    float time_offset;
 
     FastNoise fn;
     float frequency;
@@ -68,6 +72,9 @@ struct context
 inline
 void draw(context& ctx)
 {
+    ctx.render_texture.clear();
+
+
     for(int y = 0; y < ctx.rows; ++y)
     {
         for(int x = 0; x < ctx.columns; ++x)
@@ -78,25 +85,19 @@ void draw(context& ctx)
             //float v = ctx.fn.GetNoise((float) x, (float) y);
             //byte_t g = (byte_t) processing::map(v, -1.f, 1.f, 0.f, 255);
             
+            float v = ctx.fn.GetNoise((float) x, (float) y, ctx.time_offset);
+
+            r.rotate(v * 360);
+
             r.setFillColor(sf::Color::White);
 
             ctx.render_texture.draw(r);
-
-            // https://www.youtube.com/watch?v=BjoM9oKOAKY&list=PLRqwX-V7Uu6ZiZxtDDRCi6uhfTH4FilpH&index=27&t=39s
-
-
-            //sf::RectangleShape r(sf::Vector2f(ctx.scale, ctx.scale));
-            //r.setPosition(x * ctx.scale, y * ctx.scale);
-            //float v = ctx.fn.GetNoise((float) x, (float) y);
-            //byte_t g = (byte_t) processing::map(v, -1.f, 1.f, 0.f, 255);
-            //
-            //r.setFillColor(sf::Color(g, g, g));
-            //r.setOutlineThickness(2);
-            //r.setOutlineColor(sf::Color::Black);
-
-            //ctx.render_texture.draw(r);
         }
     }
+
+    ctx.render_texture.display();
+
+    ctx.time_offset += 0.1;
 }
 
 

@@ -17,7 +17,7 @@ void run_particle_system();
 
 int main()
 {
-    run_flowfield();
+    run_mandelbrot();
     
     return 0;
 }

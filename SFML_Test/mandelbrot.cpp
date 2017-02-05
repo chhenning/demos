@@ -10,8 +10,6 @@
 
 using namespace std;
 
-typedef unsigned char byte_t;
-
 using Clock = std::chrono::steady_clock;
 using std::chrono::time_point;
 using std::chrono::duration_cast;
@@ -24,20 +22,16 @@ const int height = 800;
 const int max_iterations = 1000;
 
 
-float min_value = -2.5f;
-float max_value = 2.5f;
+float min_x_value = -2.5f;
+float max_x_value = 2.0f;
+
+float min_y_value = -2.0f;
+float max_y_value = 2.0f;
+
+
 int infinity = 16;
 
-inline
-void set_pixel(byte_t* pixels, const int x, const int y, const byte_t r, const byte_t g, const byte_t b, const byte_t a = 255)
-{
-    pixels[((x + y * width) * 4) + 0] = r; // red
-    pixels[((x + y * width) * 4) + 1] = g; // green
-    pixels[((x + y * width) * 4) + 2] = b; // blue
-    pixels[((x + y * width) * 4) + 3] = a; // alpha
-}
-
-void draw_mandelbrot(byte_t* pixels)
+void draw_mandelbrot(rgba_image& image)
 {
     //set_pixel(pixels, 799, 799, 255, 0, 0);
 
@@ -54,12 +48,15 @@ void draw_mandelbrot(byte_t* pixels)
     // 5. for each iteration test of f(z_n) goes into infinity (> 16 at the start)
     // 6. Use number of iterations to color a pixel
 
+    std::vector<int> histogram(max_iterations + 1);
+
+
     for(int y = 0; y < height; ++y)
     {
         for(int x = 0; x < width; ++x)
         {
-            float a = processing::map(x, 0, width, min_value, max_value);
-            float b = processing::map(y, 0, height, min_value, max_value);
+            float a = processing::map(x, 0.f, width, min_x_value, max_x_value);
+            float b = processing::map(y, 0.f, height, min_y_value, max_y_value);
 
             float c_a = a;
             float c_b = b;
@@ -86,8 +83,10 @@ void draw_mandelbrot(byte_t* pixels)
                 n++;
             }
 
-            //float gray = processing::map(n, 0, max_iterations, 0, 255);
-            float gray = ( n * 32 ) % 255;
+            histogram[n]++;
+
+            float gray = processing::map(n, 0.f, max_iterations, 0.f, 255.f);
+            //float gray = ( n * 32 ) % 255;
             //assert(gray >= 0.0 && gray <= 255.0);
 
             if(n == max_iterations)
@@ -95,7 +94,7 @@ void draw_mandelbrot(byte_t* pixels)
                 gray = 0;
             }
 
-            set_pixel(pixels, x, y, gray, gray, gray);
+            image.set_pixel(x, y, gray, gray, gray);
         }
     }
 }
@@ -106,19 +105,17 @@ void run_mandelbrot()
     sf::RenderWindow window(sf::VideoMode(width, height), "Mandelbrot Set");
 
     // RGBA per pixel
-    byte_t* pixels = new byte_t[width * height * 4];
-    draw_mandelbrot(pixels);
+    rgba_image image(width, height);
+    draw_mandelbrot(image);
 
 
     //for(int y = 0; y < height; ++y)
     //{
     //    for(int x = 0; x < width; ++x)
     //    {
-    //        set_pixel(pixels, x, y, 255, 0, 0);
+    //        image.set_pixel(x, y, 255, 0, 0);
     //    }
     //}
-
-
 
     sf::Texture texture;
     texture.create(width, height);
@@ -149,31 +146,6 @@ void run_mandelbrot()
 
                 case sf::Event::KeyPressed:
                 {
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-                    {
-                        min_value += 0.1f;
-                        redraw = true;
-                    }
-
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-                    {
-                        min_value -= 0.1f;
-                        redraw = true;
-                    }
-
-
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-                    {
-                        max_value += 0.1f;
-                        redraw = true;
-                    }
-
-                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-                    {
-                        max_value -= 0.1f;
-                        redraw = true;
-                    }
-
                     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
                     {
                         window.close();
@@ -199,14 +171,14 @@ void run_mandelbrot()
         {
             render_start = Clock::now();
             
-            draw_mandelbrot(pixels);
+            draw_mandelbrot(image);
             
             render_end = Clock::now();
 
             show_render_time = true;
         }
 
-        texture.update(pixels);
+        texture.update(image.pixels);
 
         sf::Sprite sprite(texture);
         window.draw(sprite);

@@ -5,15 +5,13 @@
 
 namespace processing
 {
-    
-
     /// \brief Map a value from one range to another. Value can be outside its own range.
     /// \remarks An input range of [input_start, input_end] has input_end - input_start + 1 numbers. So it's equivalent to a range of [0, r], where r = input_end - input_start.
     ///          Similarly, the output range is equivalent to [0, R], where R = output_end - output_start.
     ///          An input of input is equivalent to x = input - input_start. This, from the first paragraph will translate to y = (R/r)*x. Then, we can translate the y value back to the original output range by adding output_start: output = output_start + y.
     ///          (see //http://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another)
     inline
-    float map(float value, float start1, float stop1, float start2, float stop2)
+    float map(const float value, const float start1, const float stop1, const float start2, const float stop2)
     {
         return start2 + ((stop2 - start2) / (stop1 - start1)) * (value - start1);
     }
@@ -24,10 +22,11 @@ namespace processing
     ///          An input of input is equivalent to x = input - input_start. This, from the first paragraph will translate to y = (R/r)*x. Then, we can translate the y value back to the original output range by adding output_start: output = output_start + y.
     ///          (see //http://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another)
     inline
-    double map(double value, double start1, double stop1, double start2, double stop2)
+    double map(const double value, const double start1, const double stop1, const double start2, const double stop2)
     {
         return start2 + ((stop2 - start2) / (stop1 - start1)) * (value - start1);
     }
+
 
     inline
     float random(float low, float high)
@@ -167,3 +166,37 @@ namespace color
         return out;
     }
 }
+
+typedef unsigned char byte_t;
+
+/// \brief Image class 
+struct rgba_image
+{
+    rgba_image(const int w, const int h)
+    : width(w)
+    , height(h)
+    {
+        pixels = new byte_t[width * height * 4];
+    }
+
+    ~rgba_image()
+    {
+        delete[] pixels;
+        pixels = nullptr;
+    }
+
+    inline
+    void set_pixel(const int x, const int y, const byte_t r, const byte_t g, const byte_t b, const byte_t a = 255)
+    {
+        pixels[((x + y * width) * 4) + 0] = r; // red
+        pixels[((x + y * width) * 4) + 1] = g; // green
+        pixels[((x + y * width) * 4) + 2] = b; // blue
+        pixels[((x + y * width) * 4) + 3] = a; // alpha
+    }
+
+
+    const int width;
+    const int height;
+
+    byte_t* pixels;
+};

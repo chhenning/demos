@@ -1,5 +1,6 @@
 #pragma once
 
+/// \brief vector2 is an arrow in 2D space with it's tail sitting on the origin
 struct vector2
 {
     vector2()

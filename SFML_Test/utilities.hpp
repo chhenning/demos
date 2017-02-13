@@ -3,6 +3,8 @@
 #include <cassert>
 #include <iostream>
 
+typedef unsigned char byte_t;
+
 namespace processing
 {
     /// \brief Map a value from one range to another. Value can be outside its own range.
@@ -45,13 +47,43 @@ namespace processing
 
 namespace color
 {
-    // http://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
+    /// \brief rgb color in byte (unsigned char)
+    struct rgb8u
+    {
+        rgb8u()
+        : r(0)
+        , g(0)
+        , b(0)
+        {}
+
+        rgb8u(const byte_t r, const byte_t g, const byte_t b)
+        : r(r)
+        , g(g)
+        , b(b)
+        {}
+
+        byte_t r; // [0..255]
+        byte_t g; // [0..255]
+        byte_t b; // [0..255]
+    };
 
     struct rgb
     {
         double r; // percent
         double g; // percent
         double b; // percent
+
+        rgb()
+        : r(0)
+        , g(0)
+        , b(0)
+        {}
+
+        rgb(const double r, const double g, const double b)
+        : r(r)
+        , g(g)
+        , b(b)
+        {}
     };
 
     struct hsv
@@ -62,6 +94,7 @@ namespace color
     };
 
 
+    // http://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
     inline
     rgb hsv2rgb(hsv in)
     {
@@ -166,8 +199,6 @@ namespace color
         return out;
     }
 }
-
-typedef unsigned char byte_t;
 
 /// \brief Image class 
 struct rgba_image

@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Starfield", "Starfield\Star
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AdventOfCode", "AdventOfCode\AdventOfCode.vcxproj", "{3CF4B396-56ED-4335-99F2-F76CAC881DF9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32_layer", "win32_layer\win32_layer.vcxproj", "{55C940F2-AE5E-4A18-A240-64CC7601FF80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Release|x64.Build.0 = Release|x64
 		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Release|x86.ActiveCfg = Release|Win32
 		{3CF4B396-56ED-4335-99F2-F76CAC881DF9}.Release|x86.Build.0 = Release|Win32
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Debug|x64.ActiveCfg = Debug|x64
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Debug|x64.Build.0 = Debug|x64
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Debug|x86.ActiveCfg = Debug|Win32
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Debug|x86.Build.0 = Debug|Win32
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Release|x64.ActiveCfg = Release|x64
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Release|x64.Build.0 = Release|x64
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Release|x86.ActiveCfg = Release|Win32
+		{55C940F2-AE5E-4A18-A240-64CC7601FF80}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

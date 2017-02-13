@@ -19,7 +19,7 @@ using namespace std::literals::chrono_literals;
 
 const int width = 800;
 const int height = 800;
-const int max_iterations = 1000;
+const float max_iterations = 1000.f;
 
 
 float min_x_value = -2.5f;
@@ -30,6 +30,33 @@ float max_y_value = 2.0f;
 
 
 int infinity = 16;
+
+using namespace color;
+
+rgb8u get_color(const int n)
+{
+    rgb8u colors[16] = 
+    {
+          {  66,  30,  15 } // brown 3
+        , {  25,   7,  26 } // dark violett
+        , {   9,   1,  47 } // darkest blue
+        , {   4,   4,  73 } // blue 5
+        , {   0,   7, 100 } // blue 4
+        , {  12,  44, 138 } // blue 3
+        , {  24,  82, 177 } // blue 2
+        , {  57, 125, 209 } // blue 1
+        , { 134, 181, 229 } // blue 0
+        , { 211, 236, 248 } // lightest blue
+        , { 241, 233, 191 } // lightest yellow
+        , { 248, 201,  95 } // light yellow
+        , { 255, 170,   0 } // dirty yellow
+        , { 204, 128,   0 } // brown 0
+        , { 153,  87,   0 } // brown 1
+        , { 106,  52,   3 } // brown 2
+    };
+
+    return colors[n % 16];
+}
 
 void draw_mandelbrot(rgba_image& image)
 {
@@ -85,16 +112,20 @@ void draw_mandelbrot(rgba_image& image)
 
             histogram[n]++;
 
-            float gray = processing::map(n, 0.f, max_iterations, 0.f, 255.f);
             //float gray = ( n * 32 ) % 255;
             //assert(gray >= 0.0 && gray <= 255.0);
 
-            if(n == max_iterations)
-            {
-                gray = 0;
-            }
 
-            image.set_pixel(x, y, gray, gray, gray);
+            if(n == 0 || n == max_iterations)
+            {
+                image.set_pixel(x, y, 0, 0, 0);
+            }
+            else
+            {
+                const rgb8u c = get_color(n);
+                
+                image.set_pixel(x, y, c.r, c.g, c.b);
+            }
         }
     }
 }

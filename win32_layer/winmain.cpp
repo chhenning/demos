@@ -33,7 +33,6 @@ int CALLBACK WinMain( HINSTANCE hInstance
 
     /////////////////
 	WNDCLASS window_class = {};
-    resize(app_globals._wob, Window_Width, Window_Height);
 
     // only one window
     // redraw when window is moving or resized

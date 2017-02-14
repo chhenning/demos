@@ -16,6 +16,7 @@ struct vector2
     void add(const float value)
     {
         x += value;
+        y += value;
     }
 
     void add(const vector2& other)
@@ -35,6 +36,22 @@ struct vector2
         x *= f;
         y *= f;
     }
+
+    float mag() const
+    {
+        return sqrtf( x * x + y * y );
+    }
+
+    void limit(const float l)
+    {
+        const float m = mag();
+        
+        if(m > l)
+        {
+            mult(l / m);
+        }
+    }
+
 
     /// \see http://stackoverflow.com/questions/2259476/rotating-a-point-about-another-point-2d
     void rotate(const vector2 pivot, float rad)
@@ -94,14 +111,12 @@ struct particle
         acc.mult(0.f);
 
         if(pos.get_x() < 0) { pos.set_x(width - 1); }
-        else if(pos.get_x() > width) { pos.set_x(0); }
+        else if(pos.get_x() >= width) { pos.set_x(0); }
 
         if(pos.get_y() < 0) { pos.set_y(height - 1); }
-        else if(pos.get_y() > height) { pos.set_y(0); }
+        else if(pos.get_y() >= height) { pos.set_y(0); }
 
-        if(vel.get_x() > 4) { vel.set_x(4); }
-        if(vel.get_y() > 4) { vel.set_y(4); }
-
+        vel.limit(4.f);
     }
 
     // http://natureofcode.com/book/chapter-2-forces/

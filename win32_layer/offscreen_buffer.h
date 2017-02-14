@@ -72,14 +72,14 @@ bool resize(win32_offscreen_buffer& wob, int width, int height)
 inline
 bool update_window(win32_offscreen_buffer& wob, HDC device_context, int window_width, int window_height)
 {
-    int offset_x = 10;
-    int offset_y = 10;
+    int offset_x = 0;
+    int offset_y = 0;
 
     // only clear the areas that is not drawn into by the game
-	PatBlt(device_context, 0                    , 0                     , window_width, offset_y     , WHITENESS);
-    PatBlt(device_context, 0                    , 0                     , offset_x    , window_height, WHITENESS); 
-    PatBlt(device_context, 0                    , offset_y + wob._height, window_width, window_height, WHITENESS);
-    PatBlt(device_context, offset_x + wob._width, 0                     , window_width, window_height, WHITENESS);
+	PatBlt(device_context, 0                    , 0                     , window_width, offset_y     , BLACKNESS);
+    PatBlt(device_context, 0                    , 0                     , offset_x    , window_height, BLACKNESS); 
+    PatBlt(device_context, 0                    , offset_y + wob._height, window_width, window_height, BLACKNESS);
+    PatBlt(device_context, offset_x + wob._width, 0                     , window_width, window_height, BLACKNESS);
 
 
 	int scanline_copied = StretchDIBits( device_context

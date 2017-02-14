@@ -5,7 +5,7 @@
 #include "app_state.h"
 #include "get_error.h"
 #include "offscreen_buffer.h"
-
+#include "windows_dimensions.h"
 
 LRESULT CALLBACK WindowProc(HWND hwnd
     , UINT msg
@@ -20,7 +20,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd
         {
             OutputDebugString("WM_SIZE\n");
             
-            //window_dimension win_dim(hwnd);
+            window_dimensions win_dim(hwnd);
+            resize(app_globals._wob, win_dim._width, win_dim._height);
+
             
             break;
         }

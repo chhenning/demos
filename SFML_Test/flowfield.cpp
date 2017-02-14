@@ -5,7 +5,7 @@
 #include "particle.hpp"
 #include "utilities.hpp"
 
-
+// https://youtu.be/BjoM9oKOAKY?list=PLRqwX-V7Uu6ZiZxtDDRCi6uhfTH4FilpH
 
 using namespace std;
 
@@ -26,7 +26,7 @@ struct context
 
         // particle stuff
 
-        particles.resize(100);
+        particles.resize(1000);
         for(int i = 0; i < particles.size(); ++i)
         {
             particles[i] = particle(processing::random(width), processing::random(height));
@@ -60,12 +60,13 @@ struct context
                 
                 // [-PI,PI]
                 float angle = fn.GetNoise((float) x, (float) y, time_offset) * pi;
+                //float angle = -pi / 4.f;//-pi / 4.f;
                 flowfield[x + y * columns].set_x(cosf(angle));
                 flowfield[x + y * columns].set_y(sinf(angle));
             }
         }
 
-        time_offset += 0.1;
+        time_offset += 0.01;
     }
 
     void update_particles()
@@ -218,7 +219,6 @@ struct context
     float time_offset;
 };
 
-
 void run_flowfield()
 {
     sf::RenderWindow window(sf::VideoMode(width, height), "Flowfield");
@@ -283,6 +283,8 @@ void run_flowfield()
         c.draw();
 
         sf::Sprite sprite(c.render_texture.getTexture());
+        
+
         window.draw(sprite);
 
         // copy hidden buffer into window

@@ -18,24 +18,18 @@ const int max_iterations = 100;
 void simple_2D()
 {
     sf::RenderWindow window(sf::VideoMode(width, height), "Simple 2D");
+    window.setVerticalSyncEnabled(true);
 
-    // RGBA per pixel
-    byte_t* pixels = new byte_t[width * height * 4];
+    // ABGR per pixel
+    rgba32_image img(width, height);
 
-    for(int y = 0; y < height; ++y)
-    {
-        for(int x = 0; x < width; ++x)
-        {
-            pixels[((x + y * width) * 4) + 0] = 255; // red
-            pixels[((x + y * width) * 4) + 1] = 0; // green
-            pixels[((x + y * width) * 4) + 2] = 0; // blue
-            pixels[((x + y * width) * 4) + 3] = 255; // alpha
-        }
-    }
+    img.set_pixel(255, 0, 0, 255);
 
     sf::Texture texture;
     texture.create(width, height);
 
+
+    uint8_t alpha = 255;
 
     while (window.isOpen())
     {
@@ -45,29 +39,33 @@ void simple_2D()
         {
             switch (event.type)
             {
-            case sf::Event::Closed:
-            {
-                window.close();
+                case sf::Event::Closed:
+                {
+                    window.close();
 
-                break;
-            }
+                    break;
+                }
 
-            case sf::Event::KeyPressed:
-            {
-                window.close();
+                case sf::Event::KeyPressed:
+                {
+                    window.close();
 
-                break;
-            }
+                    break;
+                }
             }
         }
 
         window.clear();
 
-        texture.update(pixels);
+        img.set_alpha(alpha--);
+        alpha = (alpha > 0) ? alpha - 1: 255;
 
+
+
+        texture.update((uint8_t*) img.pixels);
         sf::Sprite sprite(texture);
-        window.draw(sprite);
 
+        window.draw(sprite, sf::BlendAlpha);
         
         // copy hidden buffer into window
         window.display();

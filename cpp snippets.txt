@@ -25,5 +25,15 @@ milliseconds diff = duration_cast<milliseconds>(end - start);
 std::cout << "Render time: " << diff.count() << "ms" << std::endl;
 
 
+// set alpha uint32_t
+void set_alpha(const int x, const int y, const byte_t a)
+{
+	uint32_t& color = pixels[x + y * width];
+	
+	// 1. shift alpha to upper byte
+	// 2. get lower 24 bits
+	// 3. use or-operation to generate 
+	color = ( a << 24 ) | ( color & 0xFFFFFF );
+}
 
 

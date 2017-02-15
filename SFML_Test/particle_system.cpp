@@ -6,23 +6,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
-extern void run_mandelbrot();
-extern void run_julia_set();
-extern void run_perlin_noise__1D();
-extern void run_perlin_noise__2D();
-extern void run_flowfield();
-
-void run_particle_system();
-
-
-int main()
-{
-    run_flowfield();
-    
-    return 0;
-}
-
-
 class ParticleSystem : public sf::Drawable, public sf::Transformable
 {
 public:

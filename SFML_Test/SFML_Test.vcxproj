@@ -166,9 +166,10 @@
     <ClCompile Include="flowfield.cpp" />
     <ClCompile Include="julia_set.cpp" />
     <ClCompile Include="mandelbrot.cpp" />
+    <ClCompile Include="particle_system.cpp" />
     <ClCompile Include="perlin_noise__1D.cpp" />
     <ClCompile Include="perlin_noise__2D.cpp" />
-    <ClCompile Include="SFML_Test.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="simple_2D.cpp" />
     <ClCompile Include="start__using_byte_array.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

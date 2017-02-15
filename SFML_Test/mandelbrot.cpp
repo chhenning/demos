@@ -58,7 +58,7 @@ rgb8u get_color(const int n)
     return colors[n % 16];
 }
 
-void draw_mandelbrot(rgba_image& image)
+void draw_mandelbrot(rgba8_image& image)
 {
     //set_pixel(pixels, 799, 799, 255, 0, 0);
 
@@ -136,7 +136,7 @@ void run_mandelbrot()
     sf::RenderWindow window(sf::VideoMode(width, height), "Mandelbrot Set");
 
     // RGBA per pixel
-    rgba_image image(width, height);
+    rgba8_image image(width, height);
     draw_mandelbrot(image);
 
 

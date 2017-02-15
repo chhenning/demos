@@ -201,22 +201,21 @@ namespace color
 }
 
 /// \brief Image class 
-struct rgba_image
+struct rgba8_image
 {
-    rgba_image(const int w, const int h)
+    rgba8_image(const int w, const int h)
     : width(w)
     , height(h)
     {
         pixels = new byte_t[width * height * 4];
     }
 
-    ~rgba_image()
+    ~rgba8_image()
     {
         delete[] pixels;
         pixels = nullptr;
     }
 
-    inline
     void set_pixel(const int x, const int y, const byte_t r, const byte_t g, const byte_t b, const byte_t a = 255)
     {
         pixels[((x + y * width) * 4) + 0] = r; // red
@@ -230,4 +229,64 @@ struct rgba_image
     const int height;
 
     byte_t* pixels;
+};
+
+
+struct rgba32_image
+{
+    rgba32_image(const int w, const int h)
+    : width(w)
+    , height(h)
+    {
+        pixels = new uint32_t[width * height];
+    }
+
+    ~rgba32_image()
+    {
+        delete[] pixels;
+        pixels = nullptr;
+    }
+
+    uint32_t make_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
+    {
+        return ( a << 24 | b << 16 | g << 8 | r );
+    }
+
+    void set_pixel(const int x, const int y, const byte_t r, const byte_t g, const byte_t b, const byte_t a = 255)
+    {
+        pixels[x + y * width] = make_color(r,g,b,a);
+    }
+
+    void set_pixel(const byte_t r, const byte_t g, const byte_t b, const byte_t a = 255)
+    {
+        uint32_t color = make_color(r, g, b, a);
+
+        for(int i = 0; i < (width * height); ++i)
+        {
+            pixels[i] = color;
+        }
+    }
+
+    void set_alpha(const int x, const int y, const byte_t a)
+    {
+        uint32_t& color = pixels[x + y * width];
+        color = ( a << 24 ) | ( color & 0xFFFFFF );
+    }
+
+    void set_alpha(const uint8_t a)
+    {
+        for(int i = 0; i < (width * height); ++i)
+        {
+            uint32_t& color = pixels[i];
+            color = ( a << 24 ) | ( color & 0xFFFFFF );
+        }
+    }
+
+    const int width;
+    const int height;
+
+
+
+
+    uint32_t* pixels;
 };

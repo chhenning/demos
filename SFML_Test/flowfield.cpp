@@ -90,8 +90,6 @@ struct context
         }
     }
 
-
-
     void draw_particles()
     {
         for(int i = 0; i < particles.size(); ++i)
@@ -122,19 +120,19 @@ struct context
 
             particle_vertices[index].position.x = lower_left_x;
             particle_vertices[index].position.y = lower_left_y;
-            particle_vertices[index].color = sf::Color::Yellow;
+            particle_vertices[index].color = sf::Color(255,255,0,128);
 
             particle_vertices[index+1].position.x = upper_left_x;
             particle_vertices[index+1].position.y = upper_left_y;
-            particle_vertices[index+1].color = sf::Color::Yellow;
+            particle_vertices[index+1].color = sf::Color(255,255,0,128);
 
             particle_vertices[index+2].position.x = upper_right_x;
             particle_vertices[index+2].position.y = upper_right_y;
-            particle_vertices[index+2].color = sf::Color::Yellow;
+            particle_vertices[index+2].color = sf::Color(255,255,0,128);
 
             particle_vertices[index+3].position.x = lower_right_x;
             particle_vertices[index+3].position.y = lower_right_y;
-            particle_vertices[index+3].color = sf::Color::Yellow;
+            particle_vertices[index+3].color = sf::Color(255,255,0,128);
         }
 
         render_texture.draw(particle_vertices);
@@ -189,9 +187,8 @@ struct context
     {
         render_texture.clear();
 
-        draw_flowfield_vectors();
+        //draw_flowfield_vectors();
         draw_particles();
-
 
         render_texture.display();
     }
@@ -226,6 +223,21 @@ void run_flowfield()
 
     context c;
     
+    sf::Texture background;
+    background.create(width, height);
+
+    sf::Image img;
+    img.create(width, height);
+
+    for(int y = 0; y < img.getSize().y; ++y)
+    {
+        for(int x = 0; x < img.getSize().x; ++x)
+        {
+            img.setPixel(x,y, sf::Color(255, 0, 0, 128));
+        }
+    }
+
+
 
     while (window.isOpen())
     {
@@ -276,16 +288,34 @@ void run_flowfield()
             }
         }
 
+        
+        //background.update(window);
+        //sf::Image i = background.copyToImage();
+
+        //for(int y = 0; y < img.getSize().y; ++y)
+        //{
+        //    for(int x = 0; x < img.getSize().x; ++x)
+        //    {
+        //        //sf::Color c = img.getPixel(x, y);
+        //        i.setPixel(x,y, sf::Color(255, 0, 0, 128));
+        //    }
+        //}
+        
+        background.loadFromImage(img);
+
         c.update();
 
         window.clear();
        
         c.draw();
 
+        sf::Sprite background_sprite(background);
         sf::Sprite sprite(c.render_texture.getTexture());
         
 
-        window.draw(sprite);
+        window.draw(background_sprite, sf::BlendAlpha);
+        window.draw(sprite, sf::BlendAlpha);
+
 
         // copy hidden buffer into window
         window.display();

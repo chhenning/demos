@@ -237,8 +237,6 @@ void run_flowfield()
         }
     }
 
-
-
     while (window.isOpen())
     {
         // handle events

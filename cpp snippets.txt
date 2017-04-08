@@ -1,4 +1,4 @@
- c++ code snippets
+  c++ code snippets
  
  // init vector with range from 0 - 250
  //tags: stl, algorithm

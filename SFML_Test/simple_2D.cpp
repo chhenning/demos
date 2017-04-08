@@ -20,14 +20,17 @@ void simple_2D()
     sf::RenderWindow window(sf::VideoMode(width, height), "Simple 2D");
     window.setVerticalSyncEnabled(true);
 
-    // ABGR per pixel
-    rgba32_image img(width, height);
+    rgba32_image img_1(width/2, height/2);
+    rgba32_image img_2(width/2, height/2);
 
-    img.set_pixel(255, 0, 0, 255);
+    img_1.set_pixel(255,   0, 0, 128);
+    img_2.set_pixel(  0, 255, 0, 128);
 
-    sf::Texture texture;
-    texture.create(width, height);
+    sf::Texture texture_1;
+    texture_1.create(width/2, height/2);
 
+    sf::Texture texture_2;
+    texture_2.create(width/2, height/2);
 
     uint8_t alpha = 255;
 
@@ -57,15 +60,24 @@ void simple_2D()
 
         window.clear();
 
-        img.set_alpha(alpha--);
-        alpha = (alpha > 0) ? alpha - 1: 255;
+        img_1.set_alpha(alpha);
+        alpha = (alpha > 0) ? alpha - 1 : 255;
 
 
+        texture_1.update((uint8_t*) img_1.pixels);
+        sf::Sprite sprite_1(texture_1);
 
-        texture.update((uint8_t*) img.pixels);
-        sf::Sprite sprite(texture);
+        texture_2.update((uint8_t*) img_2.pixels);
+        sf::Sprite sprite_2(texture_2);
 
-        window.draw(sprite, sf::BlendAlpha);
+        sprite_1.setTextureRect(sf::IntRect(100, 100, 100, 100));
+        sprite_2.setTextureRect(sf::IntRect(100, 100, 100, 100));
+
+        sprite_1.setPosition(0,0);
+        sprite_2.setPosition(50,50);
+
+        window.draw(sprite_1, sf::BlendAlpha);
+        window.draw(sprite_2, sf::BlendAlpha);
         
         // copy hidden buffer into window
         window.display();

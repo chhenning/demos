@@ -18,7 +18,7 @@ extern void simple_2D();
 
 int main()
 {
-    run_flowfield();
+    simple_2D();
     
     return 0;
 }
